@@ -400,7 +400,9 @@ class WeChatChannel(EFBChannel):
         self.itchat.msg_register(['Video'], isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_video_msg)
         self.itchat.msg_register(['Card'], isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_card_msg)
         self.itchat.msg_register(['Friends'], isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_friend_msg)
-        self.itchat.msg_register(['Useless', 'Note'], isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_system_msg)
+        # block Useless Msg
+        # self.itchat.msg_register(['Useless', 'Note'], isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_system_msg)
+        self.itchat.msg_register(['Note'], isFriendChat=True, isMpChat=True, isGroupChat=True)(self.wechat_system_msg)
 
         @self.itchat.msg_register(["System"], isFriendChat=True, isMpChat=True, isGroupChat=True)
         def wc_msg_system_log(msg):
@@ -572,7 +574,8 @@ class WeChatChannel(EFBChannel):
                "Signature: {Signature}\n"
                "Gender: {Sex}")
         tdict = msg['Text'].copy()
-        tdict.update(msg['Text']['userInfo'])
+        # tdict.update(msg['Text']['userInfo'])
+        tdict.update(msg['Text']['autoUpdate'])
         txt = txt.format(**tdict)
         mobj.text = txt
         mobj.type = MsgType.Command
@@ -583,7 +586,8 @@ class WeChatChannel(EFBChannel):
                     "callable": "add_friend",
                     "args": [],
                     "kwargs": {
-                        "userName": msg['Text']['userInfo']['UserName'],
+                        # "userName": msg['Text']['userInfo']['UserName'],
+                        "userName": msg['Text']['autoUpdate']['UserName'],
                         "status": 3,
                         "ticket": msg['Ticket']
                     }

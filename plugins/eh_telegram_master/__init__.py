@@ -82,6 +82,8 @@ class TelegramChannel(EFBChannel):
     me = None
     _stop_polling = False
     timeout_count = 0
+    timeout_Threshold = 30
+    timeout_timer = time.time()
 
     # Constants
     TYPE_DICT = {
@@ -352,7 +354,11 @@ class TelegramChannel(EFBChannel):
                 self.logger.debug("Path: %s\nSize: %s", msg.path, os.stat(msg.path).st_size)
                 if os.stat(msg.path).st_size == 0:
                     os.remove(msg.path)
-                    tg_msg = self.bot.bot.send_message(tg_dest,
+                    if msg.type == MsgType.Sticker:
+                        tg_msg = self.bot.bot.send_message(tg_dest,
+                                                       msg_template + ("[Sent an emoticon, please check on the phone]"))
+                    else:
+                        tg_msg = self.bot.bot.send_message(tg_dest,
                                                        msg_template + ("Error: Empty %s received. (MS01)" % msg.type))
                 else:
                     if not msg.text:
@@ -1577,7 +1583,19 @@ class TelegramChannel(EFBChannel):
         Poll message from Telegram Bot API. Can be used to extend for webhook.
         This method must NOT be blocking.
         """
-        self.bot.start_polling(timeout=10)
+        # self.bot.start_polling(timeout=10)
+        webhook_url = self._flag('webhook_url', '')
+        port = self._flag('port', 80)
+        if webhook_url != '':
+            token = getattr(config, self.channel_id)['token']
+            if not webhook_url.endswith('/'):
+                webhook_url += '/'
+            webhook_url += token
+            self.bot.start_webhook('127.0.0.1', port, token)
+            self.bot.bot.setWebhook(webhook_url=webhook_url)
+            # self.logger.critical("webhook_url: %s" % webhook_url)
+        else:
+            self.bot.start_polling(timeout=10)
 
     def error(self, bot, update, error):
         """
