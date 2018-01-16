@@ -30,6 +30,10 @@ slave_channels = [('plugins.eh_wechat_slave', 'WeChatChannel')]
 #
 
 eh_telegram_master = {
+    "flags": {
+        "webhook_url": "http://example.com",
+        "port": 5000
+    },
     "token": "12345678:QWFPGJLUYarstdheioZXCVBKM",
     "admins": [0],
     "bing_speech_api": ["3243f6a8885a308d313198a2e037073", "2b7e151628ae082b7e151628ae08"],
