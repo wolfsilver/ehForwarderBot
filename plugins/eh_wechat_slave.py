@@ -555,7 +555,7 @@ class WeChatChannel(EFBChannel):
                     "callable": "add_friend",
                     "args": [],
                     "kwargs": {
-                        "userName": msg['Text']['UserName'],
+                        "UserName": msg['Text']['UserName'],
                         "status": 2,
                         "ticket": ""
                     }
@@ -587,7 +587,7 @@ class WeChatChannel(EFBChannel):
                     "args": [],
                     "kwargs": {
                         # "userName": msg['Text']['userInfo']['UserName'],
-                        "userName": msg['Text']['autoUpdate']['UserName'],
+                        "UserName": msg['Text']['autoUpdate']['UserName'],
                         "status": 3,
                         "ticket": msg['Ticket']
                     }
