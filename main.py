@@ -118,7 +118,7 @@ else:
     else:
         level = logging.DEBUG
     logging.basicConfig(format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d]\n     %(message)s',
-                        datefmt='%d-%m-%Y:%H:%M:%S',
+                        datefmt='%d-%m-%Y %H:%M:%S',
                         level=level)
     logging.getLogger('requests').setLevel(logging.CRITICAL)
     logging.getLogger('urllib3').setLevel(logging.CRITICAL)
