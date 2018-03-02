@@ -115,7 +115,7 @@ class TelegramChannel(EFBChannel):
         super().__init__(queue, mutex)
         self.slaves = slaves
         try:
-            self.bot = telegram.ext.Updater(getattr(config, self.channel_id)['token'])
+            self.bot = telegram.ext.Updater(getattr(config, self.channel_id)['token'], request_kwargs={'read_timeout': 15})             #设置超时时间
         except (AttributeError, KeyError):
             raise ValueError("Token is not properly defined. Please define it in `config.py`.")
         mimetypes.init(files=["mimetypes"])
