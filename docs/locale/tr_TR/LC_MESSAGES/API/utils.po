@@ -1,0 +1,126 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ehforwarderbot\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-20 23:43+1100\n"
+"PO-Revision-Date: 2018-02-23 05:35-0500\n"
+"Last-Translator: blueset <ilove@1a23.com>\n"
+"Language-Team: Turkish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: ehforwarderbot\n"
+"X-Crowdin-Language: tr\n"
+"X-Crowdin-File: /ehForwarderBot/docs/_build/locale/API/utils.pot\n"
+"Language: tr_TR\n"
+
+#: ../../API/utils.rst:2
+msgid "Utilities"
+msgstr "Araçlar"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:1
+msgid "Decorator for slave channel's \"additional features\" interface."
+msgstr "Bağımlı kanalın \"ek özellikler\" arayüzü için dekoratör."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.locate_module:0
+msgid "Parameters"
+msgstr "Parametreler"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:3
+msgid "A human readable name for the function."
+msgstr "Fonksiyonun insan tarafından okunabilir adı."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:5
+msgid "A short description and usage of it. Use ``{function_name}`` in place of the function name in the description."
+msgstr "Kısa açıklama ve kullanımı. Açıklamada fonksiyon adı yerine ``{function_name}`` kullanın."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:0
+msgid "Returns"
+msgstr "Geri dönüşler"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:10
+msgid "The decorated method."
+msgstr "Dekore edilmiş yöntem."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:1
+msgid "Get the base data path for EFB. This can be defined by the environment variable ``EFB_DATA_PATH``."
+msgstr "EFB'nin temel veri yolunu edinin. Bu, çevre değişkeni ``EFB_DATA_PATH`` ile tanımlanabilir."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:4
+msgid "If ``EFB_DATA_PATH`` is not defined, this gives ``~/.ehforwarderbot``."
+msgstr "Eğer `` EFB_DATA_PATH`` tanımlı değilse, varsayılan yol `` ~ /.ehforwarderbot`` dir."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:7
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:3
+msgid "This method creates the queried path if not existing."
+msgstr "Bu yöntem mevcut değilse sorgulanan yolu oluşturur."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:9
+msgid "The base path."
+msgstr "Temel yol."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:0
+msgid "Return type"
+msgstr "Dönüş türü"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:1
+msgid "Get path for configuration file. Defaulted to ``~/.ehforwarderbot/profiles/profile_name/channel_id/config.yaml``."
+msgstr "Yapılandırma dosyası için yol edinin. Öntanımlı olarak``~/.ehforwarderbot/profiles/profile_name/channel_id/config.yaml``."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:4
+msgid "This method creates the queried path if not existing. The config file will not be created, however."
+msgstr "Bu yöntem mevcut değilse sorgulanan yolu oluşturur. Fakat yapılandırma dosyası oluşturmaz."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:7
+msgid "Module ID."
+msgstr "Modül no."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:9
+msgid "Extension name of the config file. Defaulted to ``\"yaml\"``."
+msgstr "Yapılandırma dosyası uzantısının adı. Öntanımlı olarak ``\"yaml\"``."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:13
+msgid "The path to the configuration file."
+msgstr "Yapılandırma dosyasının yolu."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:1
+msgid "Get the path to custom channels"
+msgstr "Özel kanallara giden yolu al"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:3
+msgid "The path."
+msgstr "Yol."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:1
+msgid "Get the path for permanent storage of a module."
+msgstr "Bir modülün kalıcı olarak depolanması için yol edinin."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:5
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.locate_module:3
+msgid "Module ID"
+msgstr "Modül No"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:8
+msgid "The data path of selected channel."
+msgstr "Seçili kanalın veri yolu."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.locate_module:1
+msgid "Locate module by module ID"
+msgstr "Modül no ile modülü bulun"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.locate_module:4
+msgid "Type of module, one of ``'master'``, ``'slave'`` and ``'middleware'``"
+msgstr "``'master'``, ``'slave'`` ve ``'middleware'`` modül tiplerinden biridir"
+
