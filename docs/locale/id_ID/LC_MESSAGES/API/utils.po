@@ -1,0 +1,126 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ehforwarderbot\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-20 23:43+1100\n"
+"PO-Revision-Date: 2018-02-23 05:35-0500\n"
+"Last-Translator: blueset <ilove@1a23.com>\n"
+"Language-Team: Indonesian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: ehforwarderbot\n"
+"X-Crowdin-Language: id\n"
+"X-Crowdin-File: /ehForwarderBot/docs/_build/locale/API/utils.pot\n"
+"Language: id_ID\n"
+
+#: ../../API/utils.rst:2
+msgid "Utilities"
+msgstr "Utilitas"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:1
+msgid "Decorator for slave channel's \"additional features\" interface."
+msgstr "Dekorator untuk antarmuka \"fitur tambahan\" slave channel."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.locate_module:0
+msgid "Parameters"
+msgstr "Parameter"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:3
+msgid "A human readable name for the function."
+msgstr "Sebuah nama yang dapat dibaca manusia untuk fungsi."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:5
+msgid "A short description and usage of it. Use ``{function_name}`` in place of the function name in the description."
+msgstr "Sebuah deskripsi singkat dan kegunaannya. Menggunakan ``{function_name}`` di tempat nama fungsi dalam deskripsi."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:0
+msgid "Returns"
+msgstr "Kembali"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.extra:10
+msgid "The decorated method."
+msgstr "Metode yang dihias."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:1
+msgid "Get the base data path for EFB. This can be defined by the environment variable ``EFB_DATA_PATH``."
+msgstr "Dapatkan jalur data dasar untuk EFB. Hal ini dapat didefinisikan oleh variabel lingkungan `` EFB_DATA_PATH``."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:4
+msgid "If ``EFB_DATA_PATH`` is not defined, this gives ``~/.ehforwarderbot``."
+msgstr "Jika `` EFB_DATA_PATH`` tidak didefinisikan, ini memberikan `` ~ /.ehforwarderbot``."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:7
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:3
+msgid "This method creates the queried path if not existing."
+msgstr "Metode ini menimbulkan jalur tanya jika tidak ada."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:9
+msgid "The base path."
+msgstr "Jalur dasar."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:0
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:0
+msgid "Return type"
+msgstr "Tipe kembali"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:1
+msgid "Get path for configuration file. Defaulted to ``~/.ehforwarderbot/profiles/profile_name/channel_id/config.yaml``."
+msgstr "Dapatkan path untuk file konfigurasi. Default ke `` ~ /.ehforwarderbot / profiles / profile_name / channel_id / config.yaml``."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:4
+msgid "This method creates the queried path if not existing. The config file will not be created, however."
+msgstr "Metode ini menimbulkan jalur tanya jika tidak ada. File konfigurasi tidak akan dibuat, akan tetapi."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:7
+msgid "Module ID."
+msgstr "ID Modul."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:9
+msgid "Extension name of the config file. Defaulted to ``\"yaml\"``."
+msgstr "Nama ekstensi dari file konfigurasi Default ke `` \"yaml\" ``."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:13
+msgid "The path to the configuration file."
+msgstr "Jalan menuju file konfigurasi."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:1
+msgid "Get the path to custom channels"
+msgstr "Dapatkan jalur ke saluran khusus"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:3
+msgid "The path."
+msgstr "Jalan."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:1
+msgid "Get the path for permanent storage of a module."
+msgstr "Dapatkan jalan untuk penyimpanan modul secara permanen."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:5
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.locate_module:3
+msgid "Module ID"
+msgstr "ID Modul"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:8
+msgid "The data path of selected channel."
+msgstr "Jalur data dari saluran yang dipilih."
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.locate_module:1
+msgid "Locate module by module ID"
+msgstr "Mencari modul dengan ID modul"
+
+#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.locate_module:4
+msgid "Type of module, one of ``'master'``, ``'slave'`` and ``'middleware'``"
+msgstr "Jenis modul, salah satu `` 'master'```, ``' slave'`` dan `` 'middleware'``"
+

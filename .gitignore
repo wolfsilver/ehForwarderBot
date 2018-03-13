@@ -1,4 +1,3 @@
-
 # Created by https://www.gitignore.io/api/python
 
 ### Python ###
@@ -27,6 +26,9 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Ignore channels for debug purpose
+ehforwarderbot/channels/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -115,16 +117,3 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-
-config.py
-test.py
-test.db
-tgdata.db
-test*
-storage/*
-temp*
-itchat.pkl
-.itchat
-
-# Mkdocs
-site/
