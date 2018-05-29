@@ -45,7 +45,7 @@ class EFBMsg:
             the some parts of the text of the message
             refers to another user or chat.
         target (Optional[:obj:`EFBMsg`]):
-            Target message (usually for messages that "replies to" 
+            Target message (usually for messages that "replies to"
             another message).
 
             .. note::
@@ -227,9 +227,9 @@ class EFBMsgLocationAttribute(EFBMsgAttribute):
         return "<EFBMsgLocationAttribute: {attr.latitude}, {attr.longitude}>".format(attr=self)
 
     def verify(self):
-        if self.latitude is None or isinstance(self.latitude, float):
+        if self.latitude is None or not isinstance(self.latitude, float):
             raise ValueError("Latitude is invalid.")
-        if self.latitude is None or isinstance(self.latitude, float):
+        if self.longitude is None or not isinstance(self.longitude, float):
             raise ValueError("Longitude is invalid.")
 
 
