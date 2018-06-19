@@ -3,6 +3,7 @@
 import getpass
 import os
 import pydoc
+import logging
 
 import pkg_resources
 from typing import Callable
@@ -64,7 +65,7 @@ def get_data_path(module_id: str):
         module_id (str): Module ID
 
     Returns:
-        str: The data path of selected channel.
+        str: The data path of indicated module.
     """
     profile = coordinator.profile
     base_path = get_base_path()
@@ -134,3 +135,11 @@ def locate_module(module_id: str, module_type: str=None):
 
     return pydoc.locate(module_id)
 
+
+class LogLevelFilter:
+    def __init__(self, min_level=float('-inf'), max_level=float('inf')):
+        self.min_level = min_level
+        self.max_level = max_level
+
+    def filter(self, record: logging.LogRecord):
+        return self.min_level <= record.levelno <= self.max_level

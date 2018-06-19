@@ -20,7 +20,7 @@
 import os
 import sys
 
-# import sphinx_rtd_theme
+import sphinx.application
 import sphinx_readable_theme
 
 sys.path.insert(0, os.path.abspath('..'))
@@ -190,3 +190,29 @@ napoleon_use_rtype = True
 # Sphinx-intl esttings
 locale_dirs = ['locale/']   # path is example but recommended.
 gettext_compact = False     # optional.
+
+
+conversion = {
+    'az': 'az_AZ', 'es': 'es_VE', 'id': 'id_ID',
+    'it': 'it_IT', 'ja': 'ja_JP', 'ms': 'ms_MY',
+    'ro': 'ro_RO', 'tr': 'tr_TR', 'zh': 'zh_CN',
+    'en': 'en_US'
+}
+
+
+# Locale fallback settings
+def locale_fallback_decorator(fun):
+
+    def wrapper(self, **kwargs):
+        self.config.language = conversion.get(self.config.language, self.config.language)
+        return fun(self, **kwargs)
+    return wrapper
+
+
+sphinx.application.Sphinx._init_i18n = locale_fallback_decorator(sphinx.application.Sphinx._init_i18n)
+
+
+def setup(self):
+    self.config.language = conversion.get(self.config.language, self.config.language)
+    self.config.overrides['language'] = conversion.get(self.config.overrides.get('language', None),
+                                               self.config.overrides.get('language', None))
