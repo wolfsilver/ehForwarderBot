@@ -112,7 +112,8 @@ class EFBChat:
             ValueError: When this chat is invalid.
         """
         if any(i is None for i in (self.chat_uid, self.channel_id)):
-            raise ValueError("Chat data is incomplete.")
+            if not self.is_system:
+                raise ValueError("Chat data is incomplete.")
         if not isinstance(self.chat_type, ChatType):
             raise ValueError("Invalid chat type.")
         if self.chat_type == ChatType.Group:
