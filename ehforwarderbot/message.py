@@ -188,8 +188,8 @@ class EFBMsgLinkAttribute(EFBMsgAttribute):
             image (str, optional): Image/thumbnail URL of the link.
             url (str): URL of the link.
         """
-        if title is None or url is None:
-            raise ValueError("Title and URL is required.")
+        if title is None and url is None:
+            raise ValueError("Title or URL is required.")
         self.title = title
         self.description = description
         self.image = image
@@ -200,10 +200,11 @@ class EFBMsgLinkAttribute(EFBMsgAttribute):
                "({attr.image}) @ {attr.url}>".format(attr=self)
 
     def verify(self):
-        if self.url is None:
-            raise ValueError("URL does not exist")
-        if self.title is None:
-            raise ValueError("Title does not exist")
+        pass
+        # if self.url is None:
+        #     raise ValueError("URL does not exist")
+        # if self.title is None:
+        #     raise ValueError("Title does not exist")
 
 
 class EFBMsgLocationAttribute(EFBMsgAttribute):
