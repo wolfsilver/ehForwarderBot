@@ -48,9 +48,9 @@ def get_base_path() -> str:
     """
     base_path = os.environ.get("EFB_DATA_PATH", None)
     if base_path:
-        base_path = os.path.join(base_path, getpass.getuser(), "")
+        base_path = os.path.abspath(base_path)
     else:
-        base_path = os.path.expanduser("~/.ehforwarderbot/")
+        base_path = os.path.expanduser(os.path.join("~", ".ehforwarderbot"))
     os.makedirs(base_path, exist_ok=True)
     return base_path
 
@@ -74,7 +74,7 @@ def get_data_path(module_id: str):
     return data_path
 
 
-def get_config_path(module_id: str=None, ext: str= 'yaml') -> str:
+def get_config_path(module_id: str = None, ext: str = 'yaml') -> str:
     """
     Get path for configuration file. Defaulted to
     ``~/.ehforwarderbot/profiles/profile_name/channel_id/config.yaml``.
@@ -112,7 +112,7 @@ def get_custom_modules_path() -> str:
     return channel_path
 
 
-def locate_module(module_id: str, module_type: str=None):
+def locate_module(module_id: str, module_type: str = None):
     """
     Locate module by module ID
 
