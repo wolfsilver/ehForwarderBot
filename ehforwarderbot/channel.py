@@ -37,8 +37,8 @@ class EFBChannel(ABC):
     channel_name: str = "Empty channel"
     channel_emoji: str = "�"
     channel_id: str = "efb.empty_channel"
-    channel_type: ChannelType = None
-    instance_id: str = None
+    channel_type: ChannelType
+    instance_id: Optional[str] = None
     supported_message_types: Set[MsgType] = set()
     __version__: str = 'undefined version'
 
@@ -53,7 +53,7 @@ class EFBChannel(ABC):
         """
         self.instance_id = instance_id
         if instance_id:
-            self.channel_id += f"#{instance_id}"
+            self.channel_id += "#" + instance_id
 
     def get_extra_functions(self) -> Dict[str, Callable]:
         """Get a list of additional features

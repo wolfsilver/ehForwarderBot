@@ -1,10 +1,11 @@
 # coding=utf-8
 
 from abc import ABC
-from typing import Optional
+from typing import Optional, Dict, Callable, TYPE_CHECKING
 
-from .message import EFBMsg
-from .status import EFBStatus
+if TYPE_CHECKING:
+    from .message import EFBMsg
+    from .status import EFBStatus
 
 __all__ = ['EFBMiddleware']
 
@@ -24,10 +25,10 @@ class EFBMiddleware(ABC):
     """
     middleware_id: str = "efb.empty_middleware"
     middleware_name: str = "Empty Middleware"
-    instance_id: str = None
+    instance_id: Optional[str] = None
     __version__: str = 'undefined version'
 
-    def __init__(self, instance_id: str = None):
+    def __init__(self, instance_id: Optional[str] = None):
         """
         Initialize the middleware.
         Inherited initializer must call the "super init" method
@@ -38,9 +39,23 @@ class EFBMiddleware(ABC):
         """
         self.instance_id = instance_id
         if instance_id:
-            self.middleware_id += f"#{instance_id}"
+            self.middleware_id += "#" + instance_id
 
-    def process_message(self, message: EFBMsg) -> Optional[EFBMsg]:
+    def get_extra_functions(self) -> Dict[str, Callable]:
+        """Get a list of additional features
+
+        Returns:
+            Dict[str, Callable]: A dict of methods marked as additional features.
+            Method can be called with ``get_extra_functions()["methodName"]()``.
+        """
+        methods = {}
+        for mName in dir(self):
+            m = getattr(self, mName)
+            if callable(m) and getattr(m, "extra_fn", False):
+                methods[mName] = m
+        return methods
+
+    def process_message(self, message: 'EFBMsg') -> 'Optional[EFBMsg]':
         """
         Process a message with middleware
 
@@ -52,7 +67,7 @@ class EFBMiddleware(ABC):
         """
         return message
 
-    def process_status(self, status: EFBStatus) -> Optional[EFBStatus]:
+    def process_status(self, status: 'EFBStatus') -> 'Optional[EFBStatus]':
         """
         Process a status update with middleware
 

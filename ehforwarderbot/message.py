@@ -32,6 +32,13 @@ class EFBMsg:
         commands (Optional[:obj:`EFBMsgCommands`]): Commands attached to the message
         deliver_to (:obj:`.EFBChannel`): The channel that the message is to be delivered to
         edit (bool): Flag this up if the message is edited.
+            Flag only this if no multimedia file is modified, otherwise flag up both
+            this one and ``edit_media`` as well.
+
+            If no media file is modified, the edited message may carry no information about
+            the file.
+        edit_media (bool): Flag this up if any file attached to the message is modified.
+            If this value is true, ``edit_media`` must also be true.
         file (IO[bytes]): File object to multimedia file, type "ra". ``None`` if N/A.
             recommended to use ``NamedTemporaryFile`` object, the file can be
             deleted when closed, if not used otherwise.
@@ -75,6 +82,7 @@ class EFBMsg:
             for information in this section.
 
     """
+
     def __init__(self):
         self.attributes: Optional[EFBMsgAttribute] = None
         self.author: EFBChat = None
@@ -82,6 +90,7 @@ class EFBMsg:
         self.commands: Optional[EFBMsgCommands] = None
         self.deliver_to: EFBChannel = None
         self.edit: bool = False
+        self.edit_media: bool = False
         self.file: Optional[IO[bytes]] = None
         self.filename: Optional[str] = None
         self.is_system: bool = False
@@ -126,7 +135,8 @@ class EFBMsg:
             raise ValueError("Type is not valid.")
         if self.deliver_to is None or not isinstance(self.deliver_to, EFBChannel):
             raise ValueError("Deliver_to is not valid.")
-        if self.type in (MsgType.Audio, MsgType.File, MsgType.Image, MsgType.Sticker, MsgType.Video):
+        if self.type in (MsgType.Audio, MsgType.File, MsgType.Image, MsgType.Sticker, MsgType.Video) and \
+                ((not self.edit) or (self.edit and self.edit_media)):
             if self.file is None or not hasattr(self.file, "read") or not hasattr(self.file, "close"):
                 raise ValueError("File is not valid.")
             if self.mime is None or not self.mime or not isinstance(self.mime, str):
@@ -155,6 +165,7 @@ class EFBMsg:
 
 class EFBMsgAttribute(ABC):
     """Abstract class of a message attribute."""
+
     @abstractmethod
     def __init__(self):
         raise NotImplementedError("Do not use the abstract class EFBMsgAttribute")
@@ -252,7 +263,7 @@ class EFBMsgCommand:
     args: List[Any] = []
     kwargs: Dict[str, Any] = {}
 
-    def __init__(self, name: str, callable_name: str, args: List[Any]=None, kwargs: Optional[Dict[str, Any]]=None):
+    def __init__(self, name: str, callable_name: str, args: List[Any] = None, kwargs: Optional[Dict[str, Any]] = None):
         """
         Args:
             name (str): Human-friendly name of the command.
@@ -337,6 +348,7 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
                 Default to 5 seconds.
         Types: List of status types supported
     """
+
     class Types(Enum):
         """
         Attributes:
@@ -362,7 +374,7 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
         UPLOADING_AUDIO = "UPLOADING_AUDIO"
         UPLOADING_VIDEO = "UPLOADING_VIDEO"
 
-    def __init__(self, status_type: Types, timeout: Optional[int] = 5000):
+    def __init__(self, status_type: Types, timeout: int = 5000):
         """
         Args:
             status_type: Type of status.
@@ -370,7 +382,7 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
                 Number of milliseconds for this status to expire.
                 Default to 5 seconds.
         """
-        self.status_type: self.Types = status_type
+        self.status_type: 'EFBMsgStatusAttribute.Types' = status_type
         self.timeout: int = timeout
 
     def __str__(self):
@@ -415,13 +427,13 @@ class EFBMsgSubstitutions(dict):
         for i in substitutions:
             if not isinstance(i, tuple) or not len(i) == 2 or not isinstance(i[0], int) or not isinstance(i[1], int) \
                     or not i[0] < i[1]:
-                raise TypeError("Substitution %s's index must be a tuple of 2 integers where the first one is less"
-                                "than the second one." % i)
+                raise TypeError("Index of substitution {} must be a tuple of 2 integers where the first one is less"
+                                "than the second one.".format(i))
             if not isinstance(substitutions[i], EFBChat):
-                raise TypeError("Substitution %s is not a chat object." % i)
+                raise TypeError("Substitution {} is not a chat object.".format(i))
             if substitutions[i].is_chat and \
-                            substitutions[i].chat_type == ChatType.Group:
-                raise ValueError("Substitution %s is a group." % i)
+                    substitutions[i].chat_type == ChatType.Group:
+                raise ValueError("Substitution {} is a group.".format(i))
         super().__init__(substitutions)
 
     def verify(self):
