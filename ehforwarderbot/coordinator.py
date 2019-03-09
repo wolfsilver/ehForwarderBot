@@ -13,7 +13,8 @@ Attributes:
 """
 
 import threading
-from typing import List, Dict, Optional, cast, TYPE_CHECKING
+from gettext import NullTranslations
+from typing import List, Dict, Optional, cast, TYPE_CHECKING, Union
 
 from . import EFBMsg
 from .channel import EFBChannel
@@ -30,7 +31,7 @@ profile: str = "default"
 mutex: threading.Lock = threading.Lock()
 """Mutual exclusive lock for user interaction through CLI interface"""
 
-master: EFBChannel
+master: EFBChannel  # late init
 """The instance of the master channel."""
 
 slaves: Dict[str, EFBChannel] = dict()
@@ -45,7 +46,7 @@ master_thread: Optional[threading.Thread] = None
 slave_threads: Dict[str, threading.Thread] = dict()
 """Threads running poll() from slave channels. Keys are the channel IDs."""
 
-translator = None
+translator: NullTranslations  # late init
 """Internal GNU gettext translator."""
 
 
@@ -142,3 +143,28 @@ def send_status(status: 'EFBStatus'):
     status.verify()
 
     status.destination_channel.send_status(status)
+
+
+def get_module_by_id(module_id: str) -> Union[EFBChannel, EFBMiddleware]:
+    """
+    Return the module instance of a provided module ID
+    Args:
+        module_id: Module ID, with instance ID if available.
+
+    Returns:
+        Module instance requested.
+
+    Raises:
+        NameError: When the module is not found.
+    """
+    try:
+        if master.channel_id == module_id:
+            return master
+    except NameError:
+        pass
+    if module_id in slaves:
+        return slaves[module_id]
+    for i in middlewares:
+        if i.middleware_id == module_id:
+            return i
+    raise NameError("Module ID {} is not found".format(module_id))
