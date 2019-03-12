@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from abc import abstractmethod, ABC
-from typing import Iterable, Dict, Iterable, TYPE_CHECKING
+from typing import Iterable, Dict, Iterable, TYPE_CHECKING, Any
 
 from ehforwarderbot import ChannelType, ChatType
 from . import EFBChannel, EFBMsg, coordinator
@@ -9,7 +9,7 @@ from . import EFBChannel, EFBMsg, coordinator
 if TYPE_CHECKING:
     from . import EFBChat
 
-__all__ = ["EFBStatus", "EFBChatUpdates", "EFBMemberUpdates", "EFBMessageRemoval", 
+__all__ = ["EFBStatus", "EFBChatUpdates", "EFBMemberUpdates", "EFBMessageRemoval",
            "EFBReactToMessage", "EFBMessageReactUpdate"]
 
 
@@ -22,6 +22,7 @@ class EFBStatus(ABC):
             channel that this status is sent to, usually
             the master channel.
     """
+
     @abstractmethod
     def __init__(self):
         self.destination_channel: 'EFBChannel' = None
@@ -30,6 +31,21 @@ class EFBStatus(ABC):
     @abstractmethod
     def verify(self):
         raise NotImplementedError()
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if state['destination_channel'] is not None:
+            state['destination_channel'] = state['destination_channel'].channel_id
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]):
+        self.__dict__.update(state)
+        try:
+            dc = coordinator.get_module_by_id(state['destination_channel'])
+            if isinstance(dc, EFBChannel):
+                self.destination_channel = dc
+        except NameError:
+            pass
 
 
 class EFBChatUpdates(EFBStatus):
@@ -43,8 +59,10 @@ class EFBChatUpdates(EFBStatus):
         removed_chats (Optional[Iterable[str]]): Unique ID of removed chats
         modified_chats (Optional[Iterable[str]]): Unique ID of modified chats
     """
-    def __init__(self, channel: 'EFBChannel', new_chats: Iterable[str]=tuple(),
-                 removed_chats: Iterable[str]=tuple(), modified_chats: Iterable[str]=tuple()):
+
+    # noinspection PyMissingConstructor
+    def __init__(self, channel: 'EFBChannel', new_chats: Iterable[str] = tuple(),
+                 removed_chats: Iterable[str] = tuple(), modified_chats: Iterable[str] = tuple()):
         """__init__(channel: EFBChannel, new_chats: Iterable[str]=tuple(), removed_chats: Iterable[str]=tuple(), modified_chats: Iterable[str]=tuple())
 
         Args:
@@ -67,6 +85,21 @@ class EFBChatUpdates(EFBStatus):
         if self.channel is None or not isinstance(self.channel, EFBChannel):
             raise ValueError("Channel is not valid.")
 
+    def __getstate__(self):
+        state = super(EFBChatUpdates, self).__getstate__()
+        if state['channel'] is not None:
+            state['channel'] = state['channel'].channel_id
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]):
+        super(EFBChatUpdates, self).__setstate__(state)
+        try:
+            c = coordinator.get_module_by_id(state['channel'])
+            if isinstance(c, EFBChannel):
+                self.channel = c
+        except NameError:
+            pass
+
 
 class EFBMemberUpdates(EFBStatus):
     """EFBMemberUpdates(channel: EFBChannel, chat_id: str, new_members: Optional[Iterable[str]]=tuple(), removed_members: Optional[Iterable[str]]=tuple(), modified_members: Optional[Iterable[str]]=tuple())
@@ -81,9 +114,10 @@ class EFBMemberUpdates(EFBStatus):
         modified_members (Optional[Iterable[str]]): Unique ID of modified members
     """
 
+    # noinspection PyMissingConstructor
     def __init__(self, channel: 'EFBChannel', chat_id: str,
-                 new_members: Iterable[str]=tuple(), removed_members: Iterable[str]=tuple(),
-                 modified_members: Iterable[str]=tuple()):
+                 new_members: Iterable[str] = tuple(), removed_members: Iterable[str] = tuple(),
+                 modified_members: Iterable[str] = tuple()):
         """__init__(channel: EFBChannel, chat_id: str, new_members: Iterable[str]=tuple(), removed_members: Iterable[str]=tuple(), modified_members: Optional[Iterable[str]]=tuple())
 
         Args:
@@ -108,6 +142,21 @@ class EFBMemberUpdates(EFBStatus):
         if self.channel is None or not isinstance(self.channel, EFBChannel):
             raise ValueError("Channel is not valid.")
 
+    def __getstate__(self):
+        state = super(EFBMemberUpdates, self).__getstate__()
+        if state['channel'] is not None:
+            state['channel'] = state['channel'].channel_id
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]):
+        super(EFBMemberUpdates, self).__setstate__(state)
+        try:
+            c = coordinator.get_module_by_id(state['channel'])
+            if isinstance(c, EFBChannel):
+                self.channel = c
+        except NameError:
+            pass
+
 
 class EFBMessageRemoval(EFBStatus):
     """EFBMessageRemoval(source_channel: EFBChannel, destination_channel: EFBChannel, message: EFBMsg)
@@ -127,6 +176,7 @@ class EFBMessageRemoval(EFBStatus):
             This may not be a complete :obj:`.EFBMsg` object.
     """
 
+    # noinspection PyMissingConstructor
     def __init__(self, source_channel: 'EFBChannel', destination_channel: 'EFBChannel', message: 'EFBMsg'):
         """__init__(source_channel: EFBChannel, destination_channel: EFBChannel, message: EFBMsg)
 
@@ -135,7 +185,7 @@ class EFBMessageRemoval(EFBStatus):
         Try to provided as much as you can, if not, provide a minimum information
         in the channel:
 
-        * Slave channel ID and chat ID (:attr:`message.chat.channel_id <.EFBChat.channel_id>`
+        * Slave channel ID and chat ID (:attr:`message.chat.module_id <.EFBChat.module_id>`
           and :attr:`message.chat.chat_uid <.EFBChat.chat_uid>`)
         * Message unique ID from the slave channel (:attr:`message.uid <.EFBMsg.uid>`)
 
@@ -162,6 +212,21 @@ class EFBMessageRemoval(EFBStatus):
         if not self.message.chat.module_id or not self.message.chat.chat_uid or not self.message.uid:
             raise ValueError("Message does not contain the minimum information required")
 
+    def __getstate__(self):
+        state = super(EFBMessageRemoval, self).__getstate__()
+        if state['source_channel'] is not None:
+            state['source_channel'] = state['source_channel'].channel_id
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]):
+        super(EFBMessageRemoval, self).__setstate__(state)
+        try:
+            sc = coordinator.get_module_by_id(state['source_channel'])
+            if isinstance(sc, EFBChannel):
+                self.source_channel = sc
+        except NameError:
+            pass
+
 
 class EFBReactToMessage(EFBStatus):
     """
@@ -175,6 +240,7 @@ class EFBReactToMessage(EFBStatus):
             Channel the status is issued to, extracted from the chat object.
     """
 
+    # noinspection PyMissingConstructor
     def __init__(self, chat: 'EFBChat', msg_id: str, reaction: str):
         """
         Args:
@@ -182,11 +248,12 @@ class EFBReactToMessage(EFBStatus):
             msg_id (str): ID of the message to react to
             reaction (str): The reaction name to be sent, usually an emoji
         """
-        super().__init__()
         self.chat: 'EFBChat' = chat
         self.msg_id: str = msg_id
         self.reaction: str = reaction
-        self.destination_channel: EFBChannel = coordinator.slaves[self.chat.module_id]
+        dc = coordinator.get_module_by_id(self.chat.module_id)
+        if isinstance(dc, EFBChannel):
+            self.destination_channel = dc
 
     def verify(self):
         if not self.chat:
@@ -214,6 +281,7 @@ class EFBMessageReactUpdate(EFBStatus):
             Channel the status is issued to, which is always the master channel.
     """
 
+    # noinspection PyMissingConstructor
     def __init__(self, chat: 'EFBChat', msg_id: str, reactions: Dict[str, Iterable['EFBChat']]):
         """
         Args:
@@ -226,7 +294,6 @@ class EFBMessageReactUpdate(EFBStatus):
                 All :obj:`EFBChat` objects in this dict must be of a user or a
                 group member.
         """
-        super().__init__()
         self.chat: 'EFBChat' = chat
         self.msg_id: str = msg_id
         self.reactions: Dict[str, Iterable[EFBChat]] = reactions

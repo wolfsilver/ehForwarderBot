@@ -8,6 +8,7 @@ from typing import IO, Dict, Optional, List, Any, Tuple, Iterable, Mapping
 from .constants import *
 from .chat import EFBChat
 from .channel import EFBChannel
+from . import coordinator
 
 
 class EFBMsg:
@@ -172,6 +173,24 @@ class EFBMsg:
         if self.substitutions:
             self.substitutions.verify()
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['file']
+        if state['deliver_to'] is not None:
+            state['deliver_to'] = state['deliver_to'].channel_id
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]):
+        self.__dict__.update(state)
+        if self.path:
+            self.file = open(self.path, 'rb')
+        try:
+            dt = coordinator.get_module_by_id(state['deliver_to'])
+            if isinstance(dt, EFBChannel):
+                self.deliver_to = dt
+        except NameError:
+            pass
+
 
 class EFBMsgAttribute(ABC):
     """Abstract class of a message attribute."""
@@ -276,8 +295,8 @@ class EFBMsgCommand:
     """
     name: str = ""
     callable_name: str = ""
-    args: List[Any] = []
-    kwargs: Dict[str, Any] = {}
+    args: Tuple = tuple()
+    kwargs: Mapping[str, Any] = {}
 
     def __init__(self, name: str, callable_name: str, args: Iterable[Any] = None,
                  kwargs: Optional[Mapping[str, Any]] = None):
@@ -310,7 +329,7 @@ class EFBMsgCommand:
         return "<EFBMsgCommand: {name}, {callable_name}({params})>".format(
             name=self.name,
             callable_name=self.callable_name,
-            params=", ".join(self.args + ["%r=%r" % i for i in self.kwargs.items()])
+            params=", ".join(self.args + tuple("%r=%r" % i for i in self.kwargs.items()))
         )
 
     def verify(self):
@@ -391,6 +410,7 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
         UPLOADING_AUDIO = "UPLOADING_AUDIO"
         UPLOADING_VIDEO = "UPLOADING_VIDEO"
 
+    # noinspection PyMissingConstructor
     def __init__(self, status_type: Types, timeout: int = 5000):
         """
         Args:
