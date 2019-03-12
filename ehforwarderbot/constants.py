@@ -36,9 +36,6 @@ class MsgType(Enum):
     photo gallery.
     """
 
-    Animation = "Animation"
-    """ Animation (gif) message """
-
     Status = "Status"
     """
     Status from a user in a chat, usually typing and
