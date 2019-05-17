@@ -103,6 +103,7 @@ class EFBMsg:
         self.file: Optional[IO[bytes]] = None
         self.filename: Optional[str] = None
         self.is_system: bool = False
+        self.is_forward: bool = False
         self.mime: Optional[str] = None
         self.path: Optional[str] = None
         self.reactions: Dict[str, Iterable[EFBChat]] = dict()
@@ -123,6 +124,7 @@ class EFBMsg:
                "Delivering to: {msg.deliver_to}; " \
                "Edited: {msg.edit}; " \
                "System message: {msg.is_system}; " \
+               "Forward message: {msg.is_forward}; " \
                "Substitutions: {msg.substitutions}; " \
                "Target messages: {msg.target}; " \
                "UID: {msg.uid}; " \
