@@ -220,10 +220,11 @@ class EFBMsgLinkAttribute(EFBMsgAttribute):
     description: Optional[str] = None
     image: Optional[str] = None
     url: str = ""
+    notice: Optional[bool] = False
 
     # noinspection PyMissingConstructor
     def __init__(self, title: str = None, description: Optional[str] = None,
-                 image: Optional[str] = None, url: str = None):
+                 image: Optional[str] = None, url: str = None, notice: Optional[bool] = False):
         """
         Args:
             title (str): Title of the link.
@@ -237,10 +238,11 @@ class EFBMsgLinkAttribute(EFBMsgAttribute):
         self.description = description
         self.image = image
         self.url = url
+        self.notice = notice
 
     def __str__(self):
         return "<EFBMsgLinkAttribute, {attr.title}: {attr.description} " \
-               "({attr.image}) @ {attr.url}>".format(attr=self)
+               "({attr.image}) @ {attr.url} @ {attr.notice}>".format(attr=self)
 
     def verify(self):
         pass
