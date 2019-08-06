@@ -41,7 +41,7 @@ class EFBMsg:
             If no media file is modified, the edited message may carry no information about
             the file.
         edit_media (bool): Flag this up if any file attached to the message is modified.
-            If this value is true, ``edit_media`` must also be true.
+            If this value is true, ``edit`` must also be ``True``.
         file (IO[bytes]): File object to multimedia file, type "ra". ``None`` if N/A.
             recommended to use ``NamedTemporaryFile`` object, the file can be
             deleted when closed, if not used otherwise.
@@ -177,15 +177,26 @@ class EFBMsg:
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        del state['file']
+        # Remove file object
+        if state.get('file', None) is not None:
+            del state['file']
+
+        # Convert channel object to channel ID
         if state['deliver_to'] is not None:
             state['deliver_to'] = state['deliver_to'].channel_id
         return state
 
     def __setstate__(self, state: Dict[str, Any]):
         self.__dict__.update(state)
+
+        # Try to load file from original path
         if self.path:
-            self.file = open(self.path, 'rb')
+            try:
+                self.file = open(self.path, 'rb')
+            except IOError:
+                pass
+
+        # Try to load "deliver_to" channel
         try:
             dt = coordinator.get_module_by_id(state['deliver_to'])
             if isinstance(dt, EFBChannel):
@@ -445,7 +456,7 @@ class EFBMsgSubstitutions(dict):
 
     Dictionary of text substitutions targeting to a user or member.
 
-    The key of the dictionary is a tuple of two :obj:`int`\ s, where first
+    The key of the dictionary is a tuple of two :obj:`int`\\ s, where first
     of it is the starting position in the string, and the second is the
     ending position defined similar to Python's substring. A tuple of
     ``(3, 15)`` corresponds to ``msg.text[3:15]``.
