@@ -37,7 +37,7 @@ setup(
     ],
     install_requires=[
         "ruamel.yaml",
-        "asciimatics",
+        "bullet",
         "cjkwrap",
         "typing_extensions"
     ],
@@ -49,5 +49,10 @@ setup(
             'ehforwarderbot = ehforwarderbot.__main__:main',
             'efb-wizard = ehforwarderbot.wizard:main'
         ]
+    },
+    project_urls={
+        "Documentation": "https://ehForwarderBot.readthedocs.io",
+        "Telegram Chat": "https://t.me/EFBSupport",
+        "Gitter Chat": "https://gitter.im/blueset/ehForwarderBot"
     }
 )
