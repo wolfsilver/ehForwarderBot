@@ -66,7 +66,7 @@ def task_crowdin_pull():
 def task_commit_lang_file():
     return {
         "actions": [
-            ["git", "add", "*.po", "readme_translations/*.rst"],
+            ["git", "add", "*.po"],
             ["git", "commit", "-m", "Sync localization files from Crowdin"]
         ],
         "task_dep": ["crowdin", "crowdin_pull"]
@@ -133,6 +133,8 @@ def task_build():
 def task_publish():
     def get_twine_command():
         __version__ = __import__("{}.__version__".format(PACKAGE)).__version__
+        if 'dev' in __version__:
+            raise ValueError(f"Cannot publish dev version ({__version__}).")
         binary = glob.glob("./dist/*{}*".format(__version__), recursive=True)
         return ' '.join(["twine", "upload"] + binary)
     return {

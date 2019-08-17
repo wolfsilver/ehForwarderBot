@@ -9,6 +9,7 @@ from typing import Callable
 import pkg_resources
 
 from . import coordinator
+from .types import ModuleID
 
 
 def extra(name: str, desc: str) -> Callable:
@@ -57,7 +58,7 @@ def get_base_path() -> Path:
     return base_path
 
 
-def get_data_path(module_id: str) -> Path:
+def get_data_path(module_id: ModuleID) -> Path:
     """
     Get the path for persistent storage of a module.
     
@@ -76,14 +77,14 @@ def get_data_path(module_id: str) -> Path:
     return data_path
 
 
-def get_config_path(module_id: str = None, ext: str = 'yaml') -> Path:
+def get_config_path(module_id: ModuleID = None, ext: str = 'yaml') -> Path:
     """
     Get path for configuration file. Defaulted to
     ``~/.ehforwarderbot/profiles/profile_name/channel_id/config.yaml``.
     
     This method creates the queried path if not existing. The config file will
     not be created, however.
-    
+
     Args:
         module_id (str): Module ID.
         ext (Optional[Str]): Extension name of the config file.
@@ -115,7 +116,7 @@ def get_custom_modules_path() -> Path:
     return channel_path
 
 
-def locate_module(module_id: str, module_type: str = None):
+def locate_module(module_id: ModuleID, module_type: str = None):
     """
     Locate module by module ID
 
