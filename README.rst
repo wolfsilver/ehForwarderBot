@@ -4,19 +4,20 @@ EH Forwarder Bot
 .. image:: https://img.shields.io/badge/Python->%3D%203.6-blue.svg
    :alt: Python >= 3.6
    :target: https://www.python.org/
-.. image:: https://img.shields.io/travis/com/blueset/ehForwarderBot.svg
-   :alt: Travis (.com)
 .. image:: https://img.shields.io/gitter/room/blueset/ehForwarderBot.svg?logo=gitter-white
    :alt: Gitter
    :target: https://gitter.im/blueset/ehForwarderBot
-.. image:: https://img.shields.io/badge/Telegram-@EFBSupport-blue.svg?logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTkuNzgsMTguNjVMMTAuMDYsMTQuNDJMMTcuNzQsNy41QzE4LjA4LDcuMTkgMTcuNjcsNy4wNCAxNy4yMiw3LjMxTDcuNzQsMTMuM0wzLjY0LDEyQzIuNzYsMTEuNzUgMi43NSwxMS4xNCAzLjg0LDEwLjdMMTkuODEsNC41NEMyMC41NCw0LjIxIDIxLjI0LDQuNzIgMjAuOTYsNS44NEwxOC4yNCwxOC42NUMxOC4wNSwxOS41NiAxNy41LDE5Ljc4IDE2Ljc0LDE5LjM2TDEyLjYsMTYuM0wxMC42MSwxOC4yM0MxMC4zOCwxOC40NiAxMC4xOSwxOC42NSA5Ljc4LDE4LjY1WiIgLz48L3N2Zz4=
-   :alt: Telegram support group
+.. image:: https://img.shields.io/badge/-Telegram-blue.svg?logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTkuNzgsMTguNjVMMTAuMDYsMTQuNDJMMTcuNzQsNy41QzE4LjA4LDcuMTkgMTcuNjcsNy4wNCAxNy4yMiw3LjMxTDcuNzQsMTMuM0wzLjY0LDEyQzIuNzYsMTEuNzUgMi43NSwxMS4xNCAzLjg0LDEwLjdMMTkuODEsNC41NEMyMC41NCw0LjIxIDIxLjI0LDQuNzIgMjAuOTYsNS44NEwxOC4yNCwxOC42NUMxOC4wNSwxOS41NiAxNy41LDE5Ljc4IDE2Ljc0LDE5LjM2TDEyLjYsMTYuM0wxMC42MSwxOC4yM0MxMC4zOCwxOC40NiAxMC4xOSwxOC42NSA5Ljc4LDE4LjY1WiIgLz48L3N2Zz4=
+   :alt: Telegram
    :target: https://telegram.me/efbsupport
 .. image:: https://readthedocs.org/projects/ehforwarderbot/badge/?version=latest
    :alt: Documentation
    :target: https://ehforwarderbot.readthedocs.io/en/latest/
 .. image:: https://img.shields.io/pypi/v/ehforwarderbot.svg
    :alt: PyPI release
+   :target: https://pypi.org/project/ehforwarderbot/
+.. image:: https://img.shields.io/pypi/dm/ehforwarderbot.svg
+   :alt: Downloads per month
    :target: https://pypi.org/project/ehforwarderbot/
 .. image:: https://img.shields.io/codacy/grade/3b2555f9134844e3b01b00700bc43eeb.svg
    :alt: Codacy grade
@@ -26,7 +27,7 @@ EH Forwarder Bot
    :target: https://crowdin.com/project/ehforwarderbot/
 
 
-.. image:: https://images.1a23.com/di/XOEE/EFB_v2.png
+.. image:: https://github.com/blueset/ehForwarderBot/blob/master/banner.png
    :alt: Banner
 
 
@@ -84,7 +85,7 @@ EFB framework is licensed under `GNU Affero General Public License 3.0`_ or
 later versions::
 
     EH Forwarder Bot: An extensible chat tunneling bot framework.
-    Copyright (C) 2018 Eana Hufwe
+    Copyright (C) 2016 - 2019 Eana Hufwe, and the EH Forwarder Bot contributors
     All rights reserved.
 
     This program is free software: you can redistribute it and/or modify
@@ -99,6 +100,19 @@ later versions::
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    
+Translation support
+-------------------
+
+EFB supports translated user interface prompts,
+by setting the locale environmental variable (``LANGUAGE``,
+``LC_ALL``, ``LC_MESSAGES`` or ``LANG``) to one of our
+`supported languages`_. Our documentation is also available in different
+languages. You can help to translate
+this project into your languages on `our Crowdin page`_.
+
+.. _supported languages: https://crowdin.com/project/ehforwarderbot/
+.. _our Crowdin page: https://crowdin.com/project/ehforwarderbot/
 
 .. _Install and enable channels: https://ehforwarderbot.readthedocs.io/en/latest/getting-started.html
 .. _channels repository: https://github.com/blueset/ehForwarderBot/wiki/Channels-Repository

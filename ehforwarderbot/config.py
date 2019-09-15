@@ -1,18 +1,15 @@
 # coding=utf-8
 
-import os
-
 import sys
-from ruamel.yaml import YAML
 from typing import Dict, Any
 
+from ruamel.yaml import YAML
 from typing_extensions import Final
 
 from . import utils, coordinator
 from .channel import EFBChannel
-from .middleware import EFBMiddleware
 from .constants import ChannelType
-
+from .middleware import EFBMiddleware
 
 OPTIONAL_DEFAULTS: Final[Dict[str, Any]] = {
     "logging": {},
@@ -32,9 +29,9 @@ def load_config() -> Dict[str, Any]:
         sys.path.insert(0, custom_channel_path)
 
     conf_path = utils.get_config_path()
-    if not os.path.exists(conf_path):
+    if not conf_path.exists():
         raise FileNotFoundError(_("Config File does not exist. ({})").format(conf_path))
-    with open(conf_path) as f:
+    with conf_path.open() as f:
         data: Dict[str, Any] = OPTIONAL_DEFAULTS.copy()
         data.update(YAML().load(f))
 

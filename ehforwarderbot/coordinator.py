@@ -20,6 +20,7 @@ from .channel import EFBChannel
 from .constants import ChannelType
 from .exceptions import EFBChannelNotFound
 from .middleware import EFBMiddleware
+from .types import ModuleID
 
 if TYPE_CHECKING:
     from . import EFBMsg
@@ -34,7 +35,7 @@ mutex: threading.Lock = threading.Lock()
 master: EFBChannel  # late init
 """The instance of the master channel."""
 
-slaves: Dict[str, EFBChannel] = dict()
+slaves: Dict[ModuleID, EFBChannel] = dict()
 """Instances of slave channels. Keys are the channel IDs."""
 
 middlewares: List[EFBMiddleware] = list()
@@ -43,7 +44,7 @@ middlewares: List[EFBMiddleware] = list()
 master_thread: Optional[threading.Thread] = None
 """The thread running poll() of the master channel."""
 
-slave_threads: Dict[str, threading.Thread] = dict()
+slave_threads: Dict[ModuleID, threading.Thread] = dict()
 """Threads running poll() from slave channels. Keys are the channel IDs."""
 
 translator: NullTranslations = NullTranslations()
@@ -114,7 +115,7 @@ def send_message(msg: 'EFBMsg') -> Optional['EFBMsg']:
     elif msg.deliver_to.channel_id in slaves:
         return slaves[msg.deliver_to.channel_id].send_message(msg)
     else:
-        raise EFBChannelNotFound(msg)
+        raise EFBChannelNotFound()
 
 
 def send_status(status: 'EFBStatus'):
@@ -143,9 +144,10 @@ def send_status(status: 'EFBStatus'):
     status.destination_channel.send_status(status)
 
 
-def get_module_by_id(module_id: str) -> Union[EFBChannel, EFBMiddleware]:
+def get_module_by_id(module_id: ModuleID) -> Union[EFBChannel, EFBMiddleware]:
     """
     Return the module instance of a provided module ID
+
     Args:
         module_id: Module ID, with instance ID if available.
 

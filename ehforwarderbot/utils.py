@@ -4,14 +4,15 @@ import logging
 import os
 import pydoc
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 import pkg_resources
 
 from . import coordinator
+from .types import ModuleID
 
 
-def extra(name: str, desc: str) -> Callable:
+def extra(name: str, desc: str) -> Callable[..., Optional[str]]:
     """
     Decorator for slave channel's "additional features" interface.
 
@@ -38,12 +39,12 @@ def get_base_path() -> Path:
     """
     Get the base data path for EFB. This can be defined by the
     environment variable ``EFB_DATA_PATH``.
-    
+
     If ``EFB_DATA_PATH`` is not defined, this gives
     ``~/.ehforwarderbot``.
-    
+
     This method creates the queried path if not existing.
-    
+
     Returns:
         The base path.
     """
@@ -57,12 +58,12 @@ def get_base_path() -> Path:
     return base_path
 
 
-def get_data_path(module_id: str) -> Path:
+def get_data_path(module_id: ModuleID) -> Path:
     """
-    Get the path for persistent storage of a module.
-    
+    Get the path for permanent storage of a module.
+
     This method creates the queried path if not existing.
-    
+
     Args:
         module_id (str): Module ID
 
@@ -76,14 +77,14 @@ def get_data_path(module_id: str) -> Path:
     return data_path
 
 
-def get_config_path(module_id: str = None, ext: str = 'yaml') -> Path:
+def get_config_path(module_id: ModuleID = None, ext: str = 'yaml') -> Path:
     """
     Get path for configuration file. Defaulted to
     ``~/.ehforwarderbot/profiles/profile_name/channel_id/config.yaml``.
-    
+
     This method creates the queried path if not existing. The config file will
     not be created, however.
-    
+
     Args:
         module_id (str): Module ID.
         ext (Optional[Str]): Extension name of the config file.
@@ -115,7 +116,7 @@ def get_custom_modules_path() -> Path:
     return channel_path
 
 
-def locate_module(module_id: str, module_type: str = None):
+def locate_module(module_id: ModuleID, module_type: str = None):
     """
     Locate module by module ID
 
@@ -129,7 +130,7 @@ def locate_module(module_id: str, module_type: str = None):
     if module_type:
         entry_point = 'ehforwarderbot.%s' % module_type
 
-    module_id = module_id.split('#', 1)[0]
+    module_id = ModuleID(module_id.split('#', 1)[0])
 
     if entry_point:
         for i in pkg_resources.iter_entry_points(entry_point):
