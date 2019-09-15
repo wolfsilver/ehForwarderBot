@@ -4,7 +4,7 @@ from abc import abstractmethod, ABC
 from typing import Dict, Collection, TYPE_CHECKING, Any, Optional
 
 from . import EFBChannel, EFBMsg, coordinator, ChannelType, ChatType
-from .types import Reactions, ReactionName
+from .types import Reactions, ReactionName, ChatID, MessageID
 
 if TYPE_CHECKING:
     from . import EFBChat
@@ -61,8 +61,10 @@ class EFBChatUpdates(EFBStatus):
     """
 
     # noinspection PyMissingConstructor
-    def __init__(self, channel: 'EFBChannel', new_chats: Collection[str] = tuple(),
-                 removed_chats: Collection[str] = tuple(), modified_chats: Collection[str] = tuple()):
+    def __init__(self, channel: 'EFBChannel',
+                 new_chats: Collection[ChatID] = tuple(),
+                 removed_chats: Collection[ChatID] = tuple(),
+                 modified_chats: Collection[ChatID] = tuple()):
         """__init__(channel: EFBChannel, new_chats: Collection[str]=tuple(), removed_chats: Collection[str]=tuple(), modified_chats: Collection[str]=tuple())
 
         Args:
@@ -72,10 +74,11 @@ class EFBChatUpdates(EFBStatus):
             modified_chats (Optional[Collection[str]]): Unique ID of modified chats
         """
         self.channel: 'EFBChannel' = channel
-        self.new_chats: Collection[str] = new_chats
-        self.removed_chats: Collection[str] = removed_chats
-        self.modified_chats: Collection[str] = modified_chats
+        self.new_chats: Collection[ChatID] = new_chats
+        self.removed_chats: Collection[ChatID] = removed_chats
+        self.modified_chats: Collection[ChatID] = modified_chats
         self.destination_channel: 'EFBChannel' = coordinator.master
+        self.verify()
 
     def __str__(self):
         return "<EFBChatUpdates @ {s.channel.channel_name}; New: {s.new_chats}; " \
@@ -115,9 +118,10 @@ class EFBMemberUpdates(EFBStatus):
     """
 
     # noinspection PyMissingConstructor
-    def __init__(self, channel: 'EFBChannel', chat_id: str,
-                 new_members: Collection[str] = tuple(), removed_members: Collection[str] = tuple(),
-                 modified_members: Collection[str] = tuple()):
+    def __init__(self, channel: 'EFBChannel', chat_id: ChatID,
+                 new_members: Collection[ChatID] = tuple(),
+                 removed_members: Collection[ChatID] = tuple(),
+                 modified_members: Collection[ChatID] = tuple()):
         """__init__(channel: EFBChannel, chat_id: str, new_members: Collection[str]=tuple(), removed_members: Collection[str]=tuple(), modified_members: Optional[Collection[str]]=tuple())
 
         Args:
@@ -128,11 +132,12 @@ class EFBMemberUpdates(EFBStatus):
             modified_members (Optional[Collection[str]]): Unique ID of modified members
         """
         self.channel: 'EFBChannel' = channel
-        self.chat_id: str = chat_id
-        self.new_members: Collection[str] = new_members
-        self.removed_members: Collection[str] = removed_members
-        self.modified_members: Collection[str] = modified_members
+        self.chat_id: ChatID = chat_id
+        self.new_members: Collection[ChatID] = new_members
+        self.removed_members: Collection[ChatID] = removed_members
+        self.modified_members: Collection[ChatID] = modified_members
         self.destination_channel: 'EFBChannel' = coordinator.master
+        self.verify()
 
     def __str__(self):
         return "<EFBMemberUpdates: {s.chat_id} @ {s.channel.channel_name}; New: {s.new_chats}; " \
@@ -201,6 +206,7 @@ class EFBMessageRemoval(EFBStatus):
         self.source_channel: 'EFBChannel' = source_channel
         self.destination_channel: 'EFBChannel' = destination_channel
         self.message: 'EFBMsg' = message
+        self.verify()
 
     def __str__(self):
         return "<EFBMessageRemoval: {s.message}; {s.source_channel.channel_name} " \
@@ -236,11 +242,11 @@ class EFBReactToMessage(EFBStatus):
     """
     Created when user react to a message, issued from master channel.
 
-    When this status is sent, a :obj:`.status.EFBMessageReactionsUpdate` is NOT
-    required to be issued back to master channel.
+    When this status is sent, a :obj:`.status.EFBMessageReactionsUpdate` is
+    recommended to be issued back to master channel.
 
     Args:
-        chat (:obj:`EFBChat`): The chat where message
+        chat (:obj:`EFBChat`): The chat where message is sent
         msg_id (str): ID of the message to react to
         reaction (Optional[str]): The reaction name to be sent, usually an emoji.
             Set to ``None`` to remove reaction.
@@ -266,13 +272,17 @@ class EFBReactToMessage(EFBStatus):
         self.chat: 'EFBChat' = chat
         self.msg_id: str = msg_id
         self.reaction: Optional[str] = reaction
-        dc = coordinator.get_module_by_id(self.chat.module_id)
-        if isinstance(dc, EFBChannel):
-            self.destination_channel = dc
+        if getattr(self.chat, 'module_id', None):
+            dc = coordinator.get_module_by_id(self.chat.module_id)
+            if isinstance(dc, EFBChannel):
+                self.destination_channel = dc
+        self.verify()
 
     def verify(self):
         if not self.chat:
             raise ValueError("Chat is not valid.")
+        if not self.msg_id:
+            raise ValueError("Message ID is not valid.")
         if not self.destination_channel or not isinstance(self.destination_channel, EFBChannel):
             raise ValueError("Destination channel does not exist.")
         if self.destination_channel.channel_type != ChannelType.Slave:
@@ -284,7 +294,7 @@ class EFBMessageReactionsUpdate(EFBStatus):
     Update reacts of a message, issued from slave channel to master channel.
 
     Args:
-        chat (:obj:`EFBChat`): The chat where message
+        chat (:obj:`EFBChat`): The chat where message is sent
         msg_id (str): ID of the message for the reacts
         reactions (Dict[str, Collection[:obj:`EFBChat`]]):
             Indicate reactions to the message. Dictionary key represents the
@@ -297,10 +307,10 @@ class EFBMessageReactionsUpdate(EFBStatus):
     """
 
     # noinspection PyMissingConstructor
-    def __init__(self, chat: 'EFBChat', msg_id: str, reactions: Reactions):
+    def __init__(self, chat: 'EFBChat', msg_id: MessageID, reactions: Reactions):
         """
         Args:
-            chat (:obj:`EFBChat`): The chat where message
+            chat (:obj:`EFBChat`): The chat where message is sent
             msg_id (str): ID of the message for the reacts
             reactions (Dict[str, Collection[:obj:`EFBChat`]]):
                 Indicate reactions to the message. Dictionary key represents the
@@ -310,14 +320,17 @@ class EFBMessageReactionsUpdate(EFBStatus):
                 group member.
         """
         self.chat: 'EFBChat' = chat
-        self.msg_id: str = msg_id
+        self.msg_id: MessageID = msg_id
         self.reactions: Reactions = reactions
         self.destination_channel = coordinator.master
+        self.verify()
 
     def verify(self):
         if not self.chat:
             raise ValueError("Chat is not valid.")
+        if not self.msg_id:
+            raise ValueError("Message ID is not valid.")
         for reaction, users in self.reactions.items():
             for user in users:
                 if user.chat_type == ChatType.Group:
-                    raise ValueError("Chat {} from reaction {} is a group.".format(user, reaction))
+                    raise ValueError("Chat {} from reaction {} should not be a group.".format(user, reaction))

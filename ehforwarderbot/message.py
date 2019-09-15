@@ -193,13 +193,6 @@ class EFBMsg:
     def __setstate__(self, state: Dict[str, Any]):
         self.__dict__.update(state)
 
-        # Try to load file from original path
-        if self.path:
-            try:
-                self.file = open(self.path, 'rb')
-            except IOError:
-                pass
-
         # Try to load "deliver_to" channel
         try:
             dt = coordinator.get_module_by_id(state['deliver_to'])
@@ -207,6 +200,13 @@ class EFBMsg:
                 self.deliver_to = dt
         except NameError:
             pass
+
+        # Try to load file from original path
+        if self.path:
+            try:
+                self.file = open(self.path, 'rb')
+            except IOError:
+                pass
 
 
 class EFBMsgAttribute(ABC):
@@ -237,8 +237,8 @@ class EFBMsgLinkAttribute(EFBMsgAttribute):
     url: str = ""
 
     # noinspection PyMissingConstructor
-    def __init__(self, title: str = None, description: Optional[str] = None,
-                 image: Optional[str] = None, url: str = None):
+    def __init__(self, title: str, description: Optional[str] = None,
+                 image: Optional[str] = None, url: str = ""):
         """
         Args:
             title (str): Title of the link.
@@ -246,23 +246,21 @@ class EFBMsgLinkAttribute(EFBMsgAttribute):
             image (str, optional): Image/thumbnail URL of the link.
             url (str): URL of the link.
         """
-        if title is None and url is None:
-            raise ValueError("Title or URL is required.")
         self.title = title
         self.description = description
         self.image = image
         self.url = url
+        self.verify()
 
     def __str__(self):
         return "<EFBMsgLinkAttribute, {attr.title}: {attr.description} " \
                "({attr.image}) @ {attr.url}>".format(attr=self)
 
     def verify(self):
-        pass
-        # if self.url is None:
-        #     raise ValueError("URL does not exist")
-        # if self.title is None:
-        #     raise ValueError("Title does not exist")
+        if not self.url:
+            raise ValueError("URL does not exist")
+        if not self.title:
+            raise ValueError("Title does not exist")
 
 
 class EFBMsgLocationAttribute(EFBMsgAttribute):
@@ -285,6 +283,7 @@ class EFBMsgLocationAttribute(EFBMsgAttribute):
         """
         self.latitude = latitude
         self.longitude = longitude
+        self.verify()
 
     def __str__(self):
         return "<EFBMsgLocationAttribute: {attr.latitude}, {attr.longitude}>".format(attr=self)
@@ -303,6 +302,9 @@ class EFBMsgCommand:
     In case where the message has an ``author`` from a different module
     from the ``chat``, this function should be called on the ``author``'s
     module.
+
+    The method specified must return either a ``str`` as result or ``None``
+    if this message will be further edited or deleted for interactions.
 
     Attributes:
         name (str): Human-friendly name of the command.
@@ -325,22 +327,13 @@ class EFBMsgCommand:
             kwargs (Optional[Mapping[str, Any]]): Keyword arguments passed to the function.
                 Defaulted to empty dict.
         """
-        if args is None:
-            args = tuple()
-        if kwargs is None:
-            kwargs = dict()
-        if not isinstance(name, str):
-            raise TypeError("name must be a string.")
-        if not isinstance(callable_name, str):
-            raise TypeError("callable must be a string.")
-        if not isinstance(args, CCollection):
-            raise TypeError("args must be a collection.")
-        if not isinstance(kwargs, CMapping):
-            raise TypeError("kwargs must be a mapping.")
         self.name = name
         self.callable_name = callable_name
-        self.args = tuple(args)
-        self.kwargs = dict(kwargs)
+        if args is not None:
+            self.args = tuple(args)
+        if kwargs is not None:
+            self.kwargs = dict(kwargs)
+        self.verify()
 
     def __str__(self):
         return "<EFBMsgCommand: {name}, {callable_name}({params})>".format(
@@ -350,10 +343,14 @@ class EFBMsgCommand:
         )
 
     def verify(self):
-        if not self.name:
-            raise ValueError("Name does not exist.")
-        if not self.callable_name:
-            raise ValueError("Callable does not exist.")
+        if not isinstance(self.name, str) or not self.name:
+            raise TypeError("name must be a non-empty string.")
+        if not isinstance(self.callable_name, str) or not self.callable_name:
+            raise TypeError("callable must be a non-empty string.")
+        if not isinstance(self.args, CCollection):
+            raise TypeError("args must be a collection.")
+        if not isinstance(self.kwargs, CMapping):
+            raise TypeError("kwargs must be a mapping.")
 
 
 class EFBMsgCommands:
@@ -373,17 +370,20 @@ class EFBMsgCommands:
         Args:
             commands (list of :obj:`EFBMsgCommand`): Commands for the message.
         """
-        if not (isinstance(commands, list) and len(commands) > 0 and all(
-                isinstance(i, EFBMsgCommand) for i in commands)):
-            raise ValueError("There must be one or more commands, "
-                             "and all of them must be in type EFBMsgCommand.")
         self.commands = commands.copy()
+        self.verify()
 
     def __str__(self):
         return str(self.commands)
 
     def verify(self):
+        if not isinstance(self.commands, list):
+            raise TypeError(f"Commands must be a list, but {type(self.commands)} is found.")
+        if not len(self.commands) > 0:
+            raise ValueError("There must be at least one command in the list.")
         for i in self.commands:
+            if not isinstance(i, EFBMsgCommand):
+                raise ValueError(f"{i} is not in EFBMsgCommand type.")
             i.verify()
 
 
@@ -438,6 +438,7 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
         """
         self.status_type: 'EFBMsgStatusAttribute.Types' = status_type
         self.timeout: int = timeout
+        self.verify()
 
     def __str__(self):
         return "<EFBMsgStatusAttribute: {attr.status_type} @ {attr.timeout}ms>".format(attr=self)
@@ -445,8 +446,8 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
     def verify(self):
         if self.status_type is None or not isinstance(self.status_type, self.Types):
             raise ValueError("Status type is invalid.")
-        if not isinstance(self.timeout, int):
-            raise ValueError("Timeout is invalid.")
+        if not isinstance(self.timeout, int) or self.timeout < 0:
+            raise ValueError("Timeout must be a non-negative integer.")
 
 
 class EFBMsgSubstitutions(dict):
@@ -473,24 +474,29 @@ class EFBMsgSubstitutions(dict):
 
     Type:
         Dict[Tuple[int, int], :obj:`.EFBChat`]
+
+    Attributes:
+        is_mentioned (bool): if the user (self) is mentioned in this message.
     """
 
     def __init__(self, substitutions: Dict[Tuple[int, int], EFBChat]):
         if not isinstance(substitutions, dict):
             raise TypeError("Substitutions must be a dict.")
-        for i in substitutions:
+        super().__init__(substitutions)
+        self.verify()
+        self.is_mentioned = any(i.is_self for i in self.values())
+
+    def verify(self):
+        for i in self:
             if not isinstance(i, tuple) or not len(i) == 2 or not isinstance(i[0], int) or not isinstance(i[1], int) \
                     or not i[0] < i[1]:
                 raise TypeError("Index of substitution {} must be a tuple of 2 integers where the first one is less"
                                 "than the second one.".format(i))
-            if not isinstance(substitutions[i], EFBChat):
+            if not isinstance(self[i], EFBChat):
                 raise TypeError("Substitution {} is not a chat object.".format(i))
-            if substitutions[i].is_chat and \
-                    substitutions[i].chat_type == ChatType.Group:
+            if self[i].is_chat and \
+                    self[i].chat_type == ChatType.Group:
                 raise ValueError("Substitution {} is a group.".format(i))
-        super().__init__(substitutions)
-
-    def verify(self):
         ranges = sorted(self.keys())
         if ranges and (ranges[0][0] < 0 or ranges[0][1] < ranges[0][0]):
             raise ValueError("Index %s is invalid." % ranges[0])
