@@ -42,7 +42,9 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.viewcode',
               'sphinx.ext.githubpages',
-              'sphinx.ext.napoleon']
+              'sphinx.ext.napoleon',
+              'sphinx.ext.autosectionlabel',
+              'sphinxcontrib.restbuilder']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -58,8 +60,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'EH Forwarder Bot'
-copyright = '2017 — 2018, Eana Hufwe'
-author = 'Eana Hufwe'
+copyright = '2016 — 2019, Eana Hufwe, and the EH Forwarder Bot contributors'
+author = 'Eana Hufwe, and the EH Forwarder Bot contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -187,10 +189,10 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 
-# Sphinx-intl esttings
-locale_dirs = ['locale/']   # path is example but recommended.
-gettext_compact = False     # optional.
-
+# Sphinx-intl settings
+locale_dirs = ['locale/']
+gettext_compact = False
+gettext_additional_targets = ['literal-block', 'image']
 
 conversion = {
     'az': 'az_AZ', 'es': 'es_VE', 'id': 'id_ID',
@@ -200,19 +202,20 @@ conversion = {
 }
 
 
-# Locale fallback settings
-def locale_fallback_decorator(fun):
+# # Locale fallback settings
+# def locale_fallback_decorator(fun):
+#
+#     def wrapper(self, **kwargs):
+#         self.config.language = conversion.get(self.config.language, self.config.language)
+#         return fun(self, **kwargs)
+#     return wrapper
+#
+#
+# sphinx.application.Sphinx._init_i18n = locale_fallback_decorator(sphinx.application.Sphinx._init_i18n)
 
-    def wrapper(self, **kwargs):
-        self.config.language = conversion.get(self.config.language, self.config.language)
-        return fun(self, **kwargs)
-    return wrapper
-
-
-sphinx.application.Sphinx._init_i18n = locale_fallback_decorator(sphinx.application.Sphinx._init_i18n)
-
+autosectionlabel_prefix_document = True
 
 def setup(self):
     self.config.language = conversion.get(self.config.language, self.config.language)
     self.config.overrides['language'] = conversion.get(self.config.overrides.get('language', None),
-                                               self.config.overrides.get('language', None))
+                                                       self.config.overrides.get('language', None))

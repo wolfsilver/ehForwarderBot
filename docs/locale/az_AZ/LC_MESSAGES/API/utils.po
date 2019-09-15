@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ehforwarderbot\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-22 22:34+1100\n"
-"PO-Revision-Date: 2018-03-22 07:41-0400\n"
-"Last-Translator: blueset <ilove@1a23.com>\n"
+"POT-Creation-Date: 2019-09-03 15:32+0800\n"
+"PO-Revision-Date: 2019-09-03 07:45\n"
+"Last-Translator: Eana Hufwe (blueset)\n"
 "Language-Team: Azerbaijani\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -68,13 +68,6 @@ msgstr ""
 msgid "The base path."
 msgstr ""
 
-#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_base_path:0
-#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:0
-#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:0
-#: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:0
-msgid "Return type"
-msgstr ""
-
 #: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_config_path:1
 msgid "Get path for configuration file. Defaulted to ``~/.ehforwarderbot/profiles/profile_name/channel_id/config.yaml``."
 msgstr ""
@@ -100,7 +93,7 @@ msgid "Get the path to custom channels"
 msgstr ""
 
 #: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_custom_modules_path:3
-msgid "The path."
+msgid "The path for custom channels."
 msgstr ""
 
 #: ../../../ehforwarderbot/utils.py:docstring of ehforwarderbot.utils.get_data_path:1

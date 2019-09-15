@@ -18,13 +18,14 @@ setup(
     author='Eana Hufwe',
     author_email='ilove@1a23.com',
     url='https://github.com/blueset/ehforwarderbot',
-    license='GPLv3',
+    license='AGPLv3+',
     python_requires='>=3.6',
     include_package_data=True,
+    zip_safe=False,
     keywords=['EFB', 'EH Forwarder Bot', 'Chat tunneling', 'IM', 'messaging'],
     classifiers=[
         "Development Status :: 4 - Beta",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         "Intended Audience :: Developers",
         "Intended Audience :: End Users/Desktop",
         "Programming Language :: Python :: 3 :: Only",
@@ -35,9 +36,23 @@ setup(
         "Topic :: Utilities"
     ],
     install_requires=[
-        "PyYaml"
+        "ruamel.yaml",
+        "bullet",
+        "cjkwrap",
+        "typing_extensions"
     ],
+    extras_require={
+        'telemetry': ['1a23-telemetry']
+    },
     entry_points={
-        "console_scripts": ['ehforwarderbot = ehforwarderbot.__main__:main']
+        "console_scripts": [
+            'ehforwarderbot = ehforwarderbot.__main__:main',
+            'efb-wizard = ehforwarderbot.wizard:main'
+        ]
+    },
+    project_urls={
+        "Documentation": "https://ehForwarderBot.readthedocs.io",
+        "Telegram Chat": "https://t.me/EFBSupport",
+        "Gitter Chat": "https://gitter.im/blueset/ehForwarderBot"
     }
 )

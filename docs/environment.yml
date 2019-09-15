@@ -5,8 +5,12 @@ dependencies:
 - python>=3.6
 - pandoc
 - sphinx>=1.5.1
-- pyyaml
 - pip
 - pip:
   - sphinx-readable-theme
+  - sphinxcontrib-restbuilder
   - sphinx-intl
+  - ruamel.yaml
+  - bullet
+  - cjkwrap
+  - typing_extensions

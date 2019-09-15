@@ -1,15 +1,23 @@
 # coding=utf-8
 
 from abc import ABC, abstractmethod
-from typing import IO, Dict, Optional, List, Any, Tuple
+from collections.abc import Collection as CCollection
+from collections.abc import Mapping as CMapping
+from typing import IO, Dict, Optional, List, Any, Tuple, Mapping, Collection
 
+from . import coordinator
 from .constants import *
 from .chat import EFBChat
 from .channel import EFBChannel
+from .types import Reactions, MessageID
 
 
 class EFBMsg:
     """A message.
+
+    Note:
+        ``EFBMsg`` objects are picklable, thus it is strongly recommended
+        to keep any object of its subclass also picklable.
 
     Attributes:
         attributes (Optional[:obj:`.EFBMsgAttribute`]):
@@ -32,6 +40,13 @@ class EFBMsg:
         commands (Optional[:obj:`EFBMsgCommands`]): Commands attached to the message
         deliver_to (:obj:`.EFBChannel`): The channel that the message is to be delivered to
         edit (bool): Flag this up if the message is edited.
+            Flag only this if no multimedia file is modified, otherwise flag up both
+            this one and ``edit_media`` as well.
+
+            If no media file is modified, the edited message may carry no information about
+            the file.
+        edit_media (bool): Flag this up if any file attached to the message is modified.
+            If this value is true, ``edit`` must also be ``True``.
         file (IO[bytes]): File object to multimedia file, type "ra". ``None`` if N/A.
             recommended to use ``NamedTemporaryFile`` object, the file can be
             deleted when closed, if not used otherwise.
@@ -40,6 +55,12 @@ class EFBMsg:
         is_system (bool): Mark as true if this message is a system message.
         mime (str): MIME type of the file. ``None`` if N/A
         path (str): Local path of multimedia file. ``None`` if N/A
+        reactions (Dict[str, Collection[:obj:`EFBChat`]]):
+            Indicate reactions to the message. Dictionary key is the canonical name
+            of reaction, usually an emoji. Value is a collection of users
+            who reacted to the message with that certain emoji.
+            All :obj:`EFBChat` objects in this dict must be of a user or a
+            group member.
         substitutions (Optional[:obj:`EFBMsgSubstitutions`]):
             Substitutions of messages, usually used when
             the some parts of the text of the message
@@ -73,8 +94,8 @@ class EFBMsg:
             used by any other channels or middlewares that is compatible
             with such information. Note that no guarantee is provided
             for information in this section.
-
     """
+
     def __init__(self):
         self.attributes: Optional[EFBMsgAttribute] = None
         self.author: EFBChat = None
@@ -82,16 +103,18 @@ class EFBMsg:
         self.commands: Optional[EFBMsgCommands] = None
         self.deliver_to: EFBChannel = None
         self.edit: bool = False
+        self.edit_media: bool = False
         self.file: Optional[IO[bytes]] = None
         self.filename: Optional[str] = None
         self.is_system: bool = False
         self.mime: Optional[str] = None
         self.path: Optional[str] = None
+        self.reactions: Reactions = dict()
         self.substitutions: Optional[EFBMsgSubstitutions] = None
         self.target: Optional[EFBMsg] = None
         self.text: str = ""
-        self.type: MsgType = None
-        self.uid: Optional[str] = None
+        self.type: MsgType = MsgType.Unsupported
+        self.uid: Optional[MessageID] = None
         self.vendor_specific: Dict[str, Any] = dict()
 
     def __str__(self):
@@ -106,7 +129,8 @@ class EFBMsg:
                "System message: {msg.is_system}; " \
                "Substitutions: {msg.substitutions}; " \
                "Target messages: {msg.target}; " \
-               "UID: {msg.uid};" \
+               "UID: {msg.uid}; " \
+               "Reactions: {msg.reactions}; " \
                "File: {msg.file} ({msg.filename} @ {msg.path}), {msg.mime}; " \
                "Vendor: {msg.vendor_specific}>".format(msg=self)
 
@@ -118,26 +142,30 @@ class EFBMsg:
             raise ValueError("Author is not valid.")
         else:
             self.author.verify()
-        if self.author is None or not isinstance(self.author, EFBChat):
+        if self.chat is None or not isinstance(self.chat, EFBChat):
             raise ValueError("Chat is not valid.")
-        else:
-            self.author.verify()
+        elif self.chat is not self.author:  # Prevent repetitive verification
+            self.chat.verify()
         if self.type is None or not isinstance(self.type, MsgType):
             raise ValueError("Type is not valid.")
         if self.deliver_to is None or not isinstance(self.deliver_to, EFBChannel):
             raise ValueError("Deliver_to is not valid.")
-        if self.type in (MsgType.Audio, MsgType.File, MsgType.Image, MsgType.Sticker, MsgType.Video):
+        if self.type in (MsgType.Audio, MsgType.File, MsgType.Image, MsgType.Sticker, MsgType.Video) and \
+                ((not self.edit) or (self.edit and self.edit_media)):
             if self.file is None or not hasattr(self.file, "read") or not hasattr(self.file, "close"):
                 raise ValueError("File is not valid.")
-            if self.mime is None or not self.mime:
+            if self.mime is None or not self.mime or not isinstance(self.mime, str):
                 raise ValueError("MIME is not valid.")
-            if self.path is None or not self.path:
+            if self.path is None or not self.path or not isinstance(self.path, str):
                 raise ValueError("Path is not valid.")
-        if self.type == MsgType.Location and (self.attributes is None or not isinstance(self.attributes, EFBMsgLocationAttribute)):
+        if self.type == MsgType.Location and (self.attributes is None
+                                              or not isinstance(self.attributes, EFBMsgLocationAttribute)):
             raise ValueError("Attribute of location message is invalid.")
-        if self.type == MsgType.Link and (self.attributes is None or not isinstance(self.attributes, EFBMsgLinkAttribute)):
+        if self.type == MsgType.Link and (self.attributes is None
+                                          or not isinstance(self.attributes, EFBMsgLinkAttribute)):
             raise ValueError("Attribute of link message is invalid.")
-        if self.type == MsgType.Status and (self.attributes is None or not isinstance(self.attributes, EFBMsgStatusAttribute)):
+        if self.type == MsgType.Status and (self.attributes is None
+                                            or not isinstance(self.attributes, EFBMsgStatusAttribute)):
             raise ValueError("Attribute of status message is invalid.")
 
         if self.attributes:
@@ -149,9 +177,39 @@ class EFBMsg:
         if self.substitutions:
             self.substitutions.verify()
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # Remove file object
+        if state.get('file', None) is not None:
+            del state['file']
+
+        # Convert channel object to channel ID
+        if state['deliver_to'] is not None:
+            state['deliver_to'] = state['deliver_to'].channel_id
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]):
+        self.__dict__.update(state)
+
+        # Try to load "deliver_to" channel
+        try:
+            dt = coordinator.get_module_by_id(state['deliver_to'])
+            if isinstance(dt, EFBChannel):
+                self.deliver_to = dt
+        except NameError:
+            pass
+
+        # Try to load file from original path
+        if self.path:
+            try:
+                self.file = open(self.path, 'rb')
+            except IOError:
+                pass
+
 
 class EFBMsgAttribute(ABC):
     """Abstract class of a message attribute."""
+
     @abstractmethod
     def __init__(self):
         raise NotImplementedError("Do not use the abstract class EFBMsgAttribute")
@@ -176,8 +234,9 @@ class EFBMsgLinkAttribute(EFBMsgAttribute):
     image: Optional[str] = None
     url: str = ""
 
-    def __init__(self, title: str = None, description: Optional[str] = None,
-                 image: Optional[str] = None, url: str = None):
+    # noinspection PyMissingConstructor
+    def __init__(self, title: str, description: Optional[str] = None,
+                 image: Optional[str] = None, url: str = ""):
         """
         Args:
             title (str): Title of the link.
@@ -185,21 +244,20 @@ class EFBMsgLinkAttribute(EFBMsgAttribute):
             image (str, optional): Image/thumbnail URL of the link.
             url (str): URL of the link.
         """
-        if title is None or url is None:
-            raise ValueError("Title and URL is required.")
         self.title = title
         self.description = description
         self.image = image
         self.url = url
+        self.verify()
 
     def __str__(self):
         return "<EFBMsgLinkAttribute, {attr.title}: {attr.description} " \
                "({attr.image}) @ {attr.url}>".format(attr=self)
 
     def verify(self):
-        if self.url is None:
+        if not self.url:
             raise ValueError("URL does not exist")
-        if self.title is None:
+        if not self.title:
             raise ValueError("Title does not exist")
 
 
@@ -214,6 +272,7 @@ class EFBMsgLocationAttribute(EFBMsgAttribute):
     latitude: float = 0
     longitude: float = 0
 
+    # noinspection PyMissingConstructor
     def __init__(self, latitude: float, longitude: float):
         """
         Args:
@@ -222,6 +281,7 @@ class EFBMsgLocationAttribute(EFBMsgAttribute):
         """
         self.latitude = latitude
         self.longitude = longitude
+        self.verify()
 
     def __str__(self):
         return "<EFBMsgLocationAttribute: {attr.latitude}, {attr.longitude}>".format(attr=self)
@@ -236,56 +296,59 @@ class EFBMsgLocationAttribute(EFBMsgAttribute):
 class EFBMsgCommand:
     """
     EFB message command.
+    This object records a way to call a method in the module object.
+    In case where the message has an ``author`` from a different module
+    from the ``chat``, this function should be called on the ``author``'s
+    module.
+
+    The method specified must return either a ``str`` as result or ``None``
+    if this message will be further edited or deleted for interactions.
 
     Attributes:
         name (str): Human-friendly name of the command.
         callable_name (str): Callable name of the command.
-        args (List[Any]): Arguments passed to the function.
-        kwargs (Dict[str, Any]): Keyword arguments passed to the function.
+        args (Collection[Any]): Arguments passed to the function.
+        kwargs (Mapping[str, Any]): Keyword arguments passed to the function.
     """
     name: str = ""
     callable_name: str = ""
-    args: List[Any] = []
-    kwargs: Dict[str, Any] = {}
+    args: Tuple = tuple()
+    kwargs: Mapping[str, Any] = {}
 
-    def __init__(self, name: str, callable_name: str, args: List[Any]=None, kwargs: Optional[Dict[str, Any]]=None):
+    def __init__(self, name: str, callable_name: str, args: Collection[Any] = None,
+                 kwargs: Optional[Mapping[str, Any]] = None):
         """
         Args:
             name (str): Human-friendly name of the command.
             callable_name (str): Callable name of the command.
-            args (Optional[List[Any]]): Arguments passed to the function. Defaulted to empty list;
-            kwargs (Optional[Dict[str, Any]]): Keyword arguments passed to the function.
+            args (Optional[Collection[Any]]): Arguments passed to the function. Defaulted to empty list;
+            kwargs (Optional[Mapping[str, Any]]): Keyword arguments passed to the function.
                 Defaulted to empty dict.
         """
-        if args is None:
-            args = list()
-        if kwargs is None:
-            kwargs = dict()
-        if not isinstance(name, str):
-            raise TypeError("name must be a string.")
-        if not isinstance(callable_name, str):
-            raise TypeError("callable must be a string.")
-        if not isinstance(args, list):
-            raise TypeError("args must be a list.")
-        if not isinstance(kwargs, dict):
-            raise TypeError("kwargs must be a dict.")
         self.name = name
         self.callable_name = callable_name
-        self.args = args.copy()
-        self.kwargs = kwargs.copy()
+        if args is not None:
+            self.args = tuple(args)
+        if kwargs is not None:
+            self.kwargs = dict(kwargs)
+        self.verify()
 
     def __str__(self):
         return "<EFBMsgCommand: {name}, {callable_name}({params})>".format(
             name=self.name,
             callable_name=self.callable_name,
-            params=", ".join(self.args + ["%r=%r" % i for i in self.kwargs.items()])
+            params=", ".join(self.args + tuple("%r=%r" % i for i in self.kwargs.items()))
         )
 
     def verify(self):
-        if not self.name:
-            raise ValueError("Name does not exist.")
-        if not self.callable_name:
-            raise ValueError("Callable does not exist.")
+        if not isinstance(self.name, str) or not self.name:
+            raise TypeError("name must be a non-empty string.")
+        if not isinstance(self.callable_name, str) or not self.callable_name:
+            raise TypeError("callable must be a non-empty string.")
+        if not isinstance(self.args, CCollection):
+            raise TypeError("args must be a collection.")
+        if not isinstance(self.kwargs, CMapping):
+            raise TypeError("kwargs must be a mapping.")
 
 
 class EFBMsgCommands:
@@ -305,17 +368,20 @@ class EFBMsgCommands:
         Args:
             commands (list of :obj:`EFBMsgCommand`): Commands for the message.
         """
-        if not (isinstance(commands, list) and len(commands) > 0 and all(
-                isinstance(i, EFBMsgCommand) for i in commands)):
-            raise ValueError("There must be one or more commands, "
-                             "and all of them must be in type EFBMsgCommand.")
         self.commands = commands.copy()
+        self.verify()
 
     def __str__(self):
         return str(self.commands)
 
     def verify(self):
+        if not isinstance(self.commands, list):
+            raise TypeError(f"Commands must be a list, but {type(self.commands)} is found.")
+        if not len(self.commands) > 0:
+            raise ValueError("There must be at least one command in the list.")
         for i in self.commands:
+            if not isinstance(i, EFBMsgCommand):
+                raise ValueError(f"{i} is not in EFBMsgCommand type.")
             i.verify()
 
 
@@ -333,6 +399,7 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
                 Default to 5 seconds.
         Types: List of status types supported
     """
+
     class Types(Enum):
         """
         Attributes:
@@ -358,7 +425,8 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
         UPLOADING_AUDIO = "UPLOADING_AUDIO"
         UPLOADING_VIDEO = "UPLOADING_VIDEO"
 
-    def __init__(self, status_type: Types, timeout: Optional[int] = 5000):
+    # noinspection PyMissingConstructor
+    def __init__(self, status_type: Types, timeout: int = 5000):
         """
         Args:
             status_type: Type of status.
@@ -366,8 +434,9 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
                 Number of milliseconds for this status to expire.
                 Default to 5 seconds.
         """
-        self.status_type: self.Types = status_type
+        self.status_type: 'EFBMsgStatusAttribute.Types' = status_type
         self.timeout: int = timeout
+        self.verify()
 
     def __str__(self):
         return "<EFBMsgStatusAttribute: {attr.status_type} @ {attr.timeout}ms>".format(attr=self)
@@ -375,8 +444,8 @@ class EFBMsgStatusAttribute(EFBMsgAttribute):
     def verify(self):
         if self.status_type is None or not isinstance(self.status_type, self.Types):
             raise ValueError("Status type is invalid.")
-        if not isinstance(self.timeout, int):
-            raise ValueError("Timeout is invalid.")
+        if not isinstance(self.timeout, int) or self.timeout < 0:
+            raise ValueError("Timeout must be a non-negative integer.")
 
 
 class EFBMsgSubstitutions(dict):
@@ -390,7 +459,7 @@ class EFBMsgSubstitutions(dict):
 
     Dictionary of text substitutions targeting to a user or member.
 
-    The key of the dictionary is a tuple of two :obj:`int`\ s, where first
+    The key of the dictionary is a tuple of two :obj:`int`\\ s, where first
     of it is the starting position in the string, and the second is the
     ending position defined similar to Python's substring. A tuple of
     ``(3, 15)`` corresponds to ``msg.text[3:15]``.
@@ -403,24 +472,29 @@ class EFBMsgSubstitutions(dict):
 
     Type:
         Dict[Tuple[int, int], :obj:`.EFBChat`]
+
+    Attributes:
+        is_mentioned (bool): if the user (self) is mentioned in this message.
     """
 
     def __init__(self, substitutions: Dict[Tuple[int, int], EFBChat]):
         if not isinstance(substitutions, dict):
             raise TypeError("Substitutions must be a dict.")
-        for i in substitutions:
-            if not isinstance(i, tuple) or not len(i) == 2 or not isinstance(i[0], int) or not isinstance(i[1], int) \
-                    or not i[0] < i[1]:
-                raise TypeError("Substitution %s's index must be a tuple of 2 integers where the first one is less"
-                                "than the second one." % i)
-            if not isinstance(substitutions[i], EFBChat):
-                raise TypeError("Substitution %s is not a chat object." % i)
-            if substitutions[i].is_chat and \
-                            substitutions[i].chat_type == ChatType.Group:
-                raise ValueError("Substitution %s is a group." % i)
         super().__init__(substitutions)
+        self.verify()
+        self.is_mentioned = any(i.is_self for i in self.values())
 
     def verify(self):
+        for i in self:
+            if not isinstance(i, tuple) or not len(i) == 2 or not isinstance(i[0], int) or not isinstance(i[1], int) \
+                    or not i[0] < i[1]:
+                raise TypeError("Index of substitution {} must be a tuple of 2 integers where the first one is less"
+                                "than the second one.".format(i))
+            if not isinstance(self[i], EFBChat):
+                raise TypeError("Substitution {} is not a chat object.".format(i))
+            if self[i].is_chat and \
+                    self[i].chat_type == ChatType.Group:
+                raise ValueError("Substitution {} is a group.".format(i))
         ranges = sorted(self.keys())
         if ranges and (ranges[0][0] < 0 or ranges[0][1] < ranges[0][0]):
             raise ValueError("Index %s is invalid." % ranges[0])

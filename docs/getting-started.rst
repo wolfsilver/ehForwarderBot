@@ -38,13 +38,30 @@ stable, so proceed with caution.
     pip3 install git+https://github.com/blueset/ehforwarderbot.git
 
 
-A good network environment
---------------------------
+Alternative installation methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Since most of our channels are using polling for message retrieval,
-a good network environment is necessary for channels to run smoothly.
-A poor network environment may lead to slow response,
-or loss of messages.
+You can find a list of alternative installation methods contributed
+by the community in the `project wiki`_.
+
+For scripts, containers (e.g. Docker), etc. that may include one or
+more external modules, please visit the `modules repository`_.
+
+.. note::
+
+    These alternative installation methods are maintained by the
+    community, please consult their respective author or maintainer
+    for help related to those methods.
+
+.. _project wiki: https://github.com/blueset/ehForwarderBot/wiki/Alternative-installation-methods
+
+
+A stable internet connection
+----------------------------
+
+Since the majority of our channels are using polling for message retrieval,
+a stable internet connection is necessary for channels to run smoothly.
+An unstable connection may lead to slow response, or loss of messages.
 
 
 Create local directories
@@ -59,7 +76,7 @@ Choose, install and enable modules
 ----------------------------------
 
 Currently, all modules that was submitted to us are recorded in
-the `channels repository <https://github.com/blueset/ehForwarderBot/wiki/Channels-Repository>`_.
+the `modules repository`_.
 You can choose the channels that fits your need the best.
 
 Instructions about installing each channel is available at
@@ -98,6 +115,11 @@ running in one profile. Meanwhile, middlewares are completely optional.
         middlewares:
         - foo.null
 
+.. _modules repository: https://github.com/blueset/ehForwarderBot/wiki/Channels-Repository
+
+Alternatively, you can also use the :ref:`config:Configuration wizard` which
+can also help you set up modules installed (if they also come with a wizard).
+
 Launch EFB
 ----------
 
@@ -111,6 +133,26 @@ profile, append ``--profile <profile-name>`` to the command.
 
 For more command line options, use ``--help`` option.
 
+Use EFB in another language
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+EFB supports translated user interface and prompts.
+You can set your system language or locale environmental variables
+(``LANGUAGE``, ``LC_ALL``, ``LC_MESSAGES`` or ``LANG``) to one of our
+`supported languages`_ to switch language.
+
+You can help to translate this project into your languages on
+`our Crowdin page`_.
+
+.. _supported languages: https://crowdin.com/project/ehforwarderbot/
+.. _our Crowdin page: https://crowdin.com/project/ehforwarderbot/
+
+.. note::
+
+    If your are installing from source code, you will not get translations
+    of the user interface without manual compile of message catalogs (``.mo``)
+    prior to installation.
+
 Launch EFB as a daemon process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -121,16 +163,3 @@ daemon management, such as systemd_, upstart_, or pm2_.
 .. _systemd: https://www.freedesktop.org/wiki/Software/systemd/
 .. _upstart: http://upstart.ubuntu.com/
 .. _pm2: http://pm2.keymetrics.io/
-
-.. old_content
-    ## Configure your channels
-    Some channels, regardless of its type, may require you to provide some details for it to operate, such as API key/secret, login credentials, preferences, etc. Different modules may put their configuration in different ways, but the values should always be put a variable in `config.py`, where its variable name is the "unique ID" of the channel.
-    For more details about how to configure your channel, please consult the respective documentation of the channels.
-    ## Get it up and running
-    Most of the time, you can just run `python3 daemon.py start` and it should be ready to go.
-    .. tip:: "Run it as a normal process"
-        Besides, you can still use the classic `python3 main.py` to launch EFB. If you want to keep it running in the background when daemon process is not working on your machine, you can use tools like `screen` or `nohup` to prevent it from being terminated during disconnection.
-    However, some channels may require one-time credentials (e.g. Dynamic QR code scanning for WeChat Web Protocol). When you run the module, you may be required to take some actions before the bot goes online.
-    If the channel does require you to take actions at run-time, it should state in the documentation.
-    ## Keep it up at all times
-    You can use any supervisor tool of your preference to keep EFB up at all times. However, this may not always work when you have channels that requires user interactions during initialization.

@@ -13,14 +13,18 @@ Attributes:
 """
 
 import threading
-from typing import List, Dict, Optional
+from gettext import NullTranslations
+from typing import List, Dict, Optional, cast, TYPE_CHECKING, Union
 
-from . import EFBMsg
 from .channel import EFBChannel
 from .constants import ChannelType
 from .exceptions import EFBChannelNotFound
 from .middleware import EFBMiddleware
-from .status import EFBStatus
+from .types import ModuleID
+
+if TYPE_CHECKING:
+    from . import EFBMsg
+    from .status import EFBStatus
 
 profile: str = "default"
 """Current running profile name"""
@@ -28,10 +32,10 @@ profile: str = "default"
 mutex: threading.Lock = threading.Lock()
 """Mutual exclusive lock for user interaction through CLI interface"""
 
-master: EFBChannel = None
+master: EFBChannel  # late init
 """The instance of the master channel."""
 
-slaves: Dict[str, EFBChannel] = dict()
+slaves: Dict[ModuleID, EFBChannel] = dict()
 """Instances of slave channels. Keys are the channel IDs."""
 
 middlewares: List[EFBMiddleware] = list()
@@ -40,10 +44,10 @@ middlewares: List[EFBMiddleware] = list()
 master_thread: Optional[threading.Thread] = None
 """The thread running poll() of the master channel."""
 
-slave_threads: Dict[str, threading.Thread] = dict()
+slave_threads: Dict[ModuleID, threading.Thread] = dict()
 """Threads running poll() from slave channels. Keys are the channel IDs."""
 
-translator = None
+translator: NullTranslations = NullTranslations()
 """Internal GNU gettext translator."""
 
 
@@ -78,7 +82,7 @@ def add_middleware(middleware: EFBMiddleware):
         raise TypeError("Middleware instance is expected")
 
 
-def send_message(msg: EFBMsg) -> Optional[EFBMsg]:
+def send_message(msg: 'EFBMsg') -> Optional['EFBMsg']:
     """
     Deliver a message to the destination channel.
 
@@ -91,14 +95,18 @@ def send_message(msg: EFBMsg) -> Optional[EFBMsg]:
         Returns ``None`` if the message is not sent.
     """
     global middlewares, master, slaves
+
     if msg is None:
         return
 
     # Go through middlewares
     for i in middlewares:
-        msg = i.process_message(msg)
-        if msg is None:
-            return
+        m = i.process_message(msg)
+        if m is None:
+            return None
+        # for mypy type check
+        assert m is not None
+        msg = m
 
     msg.verify()
 
@@ -107,10 +115,10 @@ def send_message(msg: EFBMsg) -> Optional[EFBMsg]:
     elif msg.deliver_to.channel_id in slaves:
         return slaves[msg.deliver_to.channel_id].send_message(msg)
     else:
-        raise EFBChannelNotFound(msg)
+        raise EFBChannelNotFound()
 
 
-def send_status(status: EFBStatus):
+def send_status(status: 'EFBStatus'):
     """
     Deliver a message to the destination channel.
 
@@ -121,12 +129,42 @@ def send_status(status: EFBStatus):
     if status is None:
         return
 
+    s: 'Optional[EFBStatus]' = status
+
     # Go through middlewares
     for i in middlewares:
-        status = i.process_status(status)
-        if status is None:
+        s = i.process_status(cast('EFBStatus', s))
+        if s is None:
             return
+
+    status = cast('EFBStatus', s)
 
     status.verify()
 
     status.destination_channel.send_status(status)
+
+
+def get_module_by_id(module_id: ModuleID) -> Union[EFBChannel, EFBMiddleware]:
+    """
+    Return the module instance of a provided module ID
+
+    Args:
+        module_id: Module ID, with instance ID if available.
+
+    Returns:
+        Module instance requested.
+
+    Raises:
+        NameError: When the module is not found.
+    """
+    try:
+        if master.channel_id == module_id:
+            return master
+    except NameError:
+        pass
+    if module_id in slaves:
+        return slaves[module_id]
+    for i in middlewares:
+        if i.middleware_id == module_id:
+            return i
+    raise NameError("Module ID {} is not found".format(module_id))

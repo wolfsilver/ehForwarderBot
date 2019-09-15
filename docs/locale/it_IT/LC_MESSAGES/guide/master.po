@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ehforwarderbot\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-22 22:34+1100\n"
-"PO-Revision-Date: 2018-03-22 07:40-0400\n"
-"Last-Translator: blueset <ilove@1a23.com>\n"
+"POT-Creation-Date: 2019-08-13 12:09+0800\n"
+"PO-Revision-Date: 2019-08-18 06:31\n"
+"Last-Translator: Eana Hufwe (blueset)\n"
 "Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -77,6 +77,10 @@ msgid "Optionally, a master channel can also support / identify vendor-specified
 msgstr ""
 
 #: ../../guide/master.rst:46
+msgid ".. image:: guide/../_static/master-channel-0.png"
+msgstr ""
+
+#: ../../guide/master.rst:46
 msgid "An example of an ideal design of a master channel, inspired by Telegram Desktop"
 msgstr ""
 
@@ -90,5 +94,13 @@ msgstr ""
 
 #: ../../guide/master.rst:56
 msgid "Note that sometimes users may send messages outside of this EFB session, so that slave channels might provide a message has its author marked as \"self\"."
+msgstr ""
+
+#: ../../guide/master.rst:61
+msgid "Implementation details"
+msgstr ""
+
+#: ../../guide/master.rst:63
+msgid "See :class:`EFBChannel`."
 msgstr ""
 
