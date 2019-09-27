@@ -43,6 +43,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.viewcode',
               'sphinx.ext.githubpages',
               'sphinx.ext.napoleon',
+              'sphinx.ext.autosectionlabel',
               'sphinxcontrib.restbuilder']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -59,8 +60,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'EH Forwarder Bot'
-copyright = '2017 — 2019, Eana Hufwe, et al.'
-author = 'Eana Hufwe, et al.'
+copyright = '2016 — 2019, Eana Hufwe, and the EH Forwarder Bot contributors'
+author = 'Eana Hufwe, and the EH Forwarder Bot contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -193,7 +194,6 @@ locale_dirs = ['locale/']
 gettext_compact = False
 gettext_additional_targets = ['literal-block', 'image']
 
-
 conversion = {
     'az': 'az_AZ', 'es': 'es_VE', 'id': 'id_ID',
     'it': 'it_IT', 'ja': 'ja_JP', 'ms': 'ms_MY',
@@ -213,8 +213,9 @@ conversion = {
 #
 # sphinx.application.Sphinx._init_i18n = locale_fallback_decorator(sphinx.application.Sphinx._init_i18n)
 
+autosectionlabel_prefix_document = True
 
 def setup(self):
     self.config.language = conversion.get(self.config.language, self.config.language)
     self.config.overrides['language'] = conversion.get(self.config.overrides.get('language', None),
-                                               self.config.overrides.get('language', None))
+                                                       self.config.overrides.get('language', None))

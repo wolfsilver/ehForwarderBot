@@ -52,7 +52,7 @@ class EFBChannel(ABC):
 
     channel_name: str = "Empty channel"
     channel_emoji: str = "�"
-    channel_id: ModuleID = "efb.empty_channel"
+    channel_id: ModuleID = ModuleID("efb.empty_channel")
     channel_type: ChannelType
     instance_id: Optional[InstanceID] = None
     supported_message_types: Set[MsgType] = set()
@@ -68,9 +68,9 @@ class EFBChannel(ABC):
         Args:
             instance_id: Instance ID of the channel.
         """
-        self.instance_id = instance_id
         if instance_id:
-            self.channel_id += "#" + instance_id
+            self.instance_id = InstanceID(instance_id)
+            self.channel_id = ModuleID(self.channel_id + "#" + instance_id)
 
     def get_extra_functions(self) -> Dict[ExtraCommandName, Callable]:
         """Get a list of additional features
@@ -80,12 +80,12 @@ class EFBChannel(ABC):
             Method can be called with ``get_extra_functions()["methodName"]()``.
         """
         if self.channel_type == ChannelType.Master:
-            raise NameError("get_extra_function is not available on master channels.")
+            raise TypeError("get_extra_function is not available on master channels.")
         methods = {}
         for mName in dir(self):
             m = getattr(self, mName)
             if callable(m) and getattr(m, "extra_fn", False):
-                methods[mName] = m
+                methods[ExtraCommandName(mName)] = m
         return methods
 
     @abstractmethod
@@ -104,21 +104,25 @@ class EFBChannel(ABC):
                 recipient.
 
         Raises:
-            :exc:`~.exceptions.EFBChatNotFound`: Raised when a chat
-                required is not found.
-            :exc:`~.exceptions.EFBMessageTypeNotSupported`: Raised
-                when the message type sent is not supported by the
+            EFBChatNotFound:
+                Raised when a chat required is not found.
+
+            EFBMessageTypeNotSupported:
+                Raised when the message type sent is not supported by the
                 channel.
-            :exc:`~.exceptions.EFBOperationNotSupported`: Raised
-                when an message edit request is sent, but not
+
+            EFBOperationNotSupported:
+                Raised when an message edit request is sent, but not
                 supported by the channel.
-            :exc:`~.exceptions.EFBMessageNotFound`: Raised when
-                an existing message indicated is not found.
+
+            EFBMessageNotFound:
+                Raised when an existing message indicated is not found.
                 E.g.: The message to be edited, the message referred
                 in the :attr:`msg.target <.EFBMsg.target>`
                 attribute.
-            :exc:`~.exceptions.EFBMessageError`: Raised when other
-                error occurred while sending or editing the
+
+            EFBMessageError:
+                Raised when other error occurred while sending or editing the
                 message.
         """
         raise NotImplementedError()
@@ -139,7 +143,7 @@ class EFBChannel(ABC):
 
         Returns:
             List[.EFBChat]: a list of available chats in the channel.
-        
+
         Note:
             This is not required by Master Channels
         """
@@ -147,10 +151,9 @@ class EFBChannel(ABC):
 
     @abstractmethod
     def get_chat(self, chat_uid: ChatID, member_uid: Optional[ChatID] = None) -> 'EFBChat':
-        """get_chat(self, chat_uid: str, member_uid: Optional[str] = None) -> EFBChat
-
+        """
         Get the chat object from a slave channel.
-        
+
         Args:
             chat_uid (str): UID of the chat.
             member_uid (Optional[str]): UID of group member,
@@ -160,8 +163,8 @@ class EFBChannel(ABC):
            .EFBChat: The chat found.
 
         Raises:
-            :exc:`~.exceptions.EFBChatNotFound`: Raised when a chat
-                required is not found.
+            EFBChatNotFound:
+                Raised when a chat required is not found.
 
         Note:
             This is not required by Master Channels
@@ -177,24 +180,26 @@ class EFBChannel(ABC):
             status (:obj:`.EFBStatus`): the status
 
         Raises:
-            :exc:`~.exceptions.EFBChatNotFound`: Raised when a chat
-                required is not found.
-            :exc:`~.exceptions.EFBMessageNotFound`: Raised when
-                an existing message indicated is not found.
-                E.g.: The message to be removed.
-            :exc:`~.exceptions.EFBOperationNotSupported`: Raised
-                when the channel does not support message removal.
-            :exc:`~.exceptions.EFBMessageError`: Raised when other
-                error occurred while removing the message.
+            EFBChatNotFound:
+                Raised when a chat required is not found.
 
-                .. note::
-                    Avoid raising exceptions from this method
-                    in Master Channels as it would be hard
-                    for a Slave Channel to process the
-                    exception.
+            EFBMessageNotFound:
+                Raised when an existing message indicated is not found.
+                E.g.: The message to be removed.
+
+            EFBOperationNotSupported:
+                Raised when the channel does not support message removal.
+
+            EFBMessageError:
+                Raised when other error occurred while removing the message.
 
         Note:
-            This is not applicable to Slave Channels
+            Avoid raising exceptions from this method
+            in Master Channels as it would be hard
+            for a Slave Channel to process the
+            exception.
+
+            This method is not applicable to Slave Channels.
         """
         raise NotImplementedError()
 
@@ -205,7 +210,7 @@ class EFBChannel(ABC):
         Get the profile picture of a chat. Profile picture is
         also referred as profile photo, avatar, "head image"
         sometimes.
-        
+
         Args:
             chat (.EFBChat): Chat to get picture from.
 
@@ -218,14 +223,14 @@ class EFBChannel(ABC):
             It can be deleted when closed if not required otherwise.
 
         Raises:
-            :exc:`~.exceptions.EFBChatNotFound`: Raised when a chat
-                required is not found.
-            :exc:`~.exceptions.EFBOperationNotSupported`: Raised
-                when the chat does not offer a profile picture.
-            
+            EFBChatNotFound:
+                Raised when a chat required is not found.
+            EFBOperationNotSupported:
+                Raised when the chat does not offer a profile picture.
+
         Examples:
             .. code:: Python
-            
+
                 if chat.channel_uid != self.channel_uid:
                     raise EFBChannelNotFound()
                 file = tempfile.NamedTemporaryFile(suffix=".png")
@@ -236,7 +241,7 @@ class EFBChannel(ABC):
                 file.write(response.content)
                 file.seek(0)
                 return file
-                
+
         Note:
             This is not required by Master Channels
         """
@@ -255,7 +260,7 @@ class EFBChannel(ABC):
         """
         raise NotImplementedError()
 
-    def get_message_by_id(self, chat_uid: ChatID, msg_id: MessageID) -> Optional['EFBMsg']:
+    def get_message_by_id(self, chat: 'EFBChat', msg_id: MessageID) -> Optional['EFBMsg']:
         """
         Get message entity by its ID.
         Applicable to both master channels and slave channels.
@@ -266,7 +271,7 @@ class EFBChannel(ABC):
         if it is not feasible to perform this for your platform.
 
         Args:
-            chat_uid: Unique ID of chat in slave channel / middleware.
+            chat: Chat in slave channel / middleware.
             msg_id: ID of message from the chat in slave channel / middleware.
         """
         raise NotImplementedError()

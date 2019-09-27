@@ -3,14 +3,17 @@
 import copy
 import warnings
 from enum import Enum
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, TypeVar
 
 from .channel import EFBChannel
 from .constants import ChatType
 from .middleware import EFBMiddleware
-from .types import ModuleID
+from .types import ModuleID, ChatID
 
 __all__ = ['EFBChat', 'EFBChatNotificationState']
+
+# Allow mypy to recognize subclass output for `return self` methods.
+EFBChatSelf = TypeVar('EFBChatSelf', bound='EFBChat')
 
 
 class EFBChatNotificationState(Enum):
@@ -24,7 +27,7 @@ class EFBChatNotificationState(Enum):
 
     MENTIONS = 1
     """Notifications are sent only when the user is mentioned in the message,
-    in the form of @-references or direct reply (message target).
+    in the form of @-references or quote-reply (message target).
     """
 
     ALL = -1
@@ -60,8 +63,8 @@ class EFBChat:
         vendor_specific (Dict[str, Any]): Any vendor specific attributes.
     """
 
-    SELF_ID = "__self__"
-    SYSTEM_ID = "__system__"
+    SELF_ID = ChatID("__self__")
+    SYSTEM_ID = ChatID("__system__")
 
     def __init__(self, channel: Optional[EFBChannel] = None,
                  middleware: Optional[EFBMiddleware] = None):
@@ -76,7 +79,7 @@ class EFBChat:
         """
         self.module_name: str = ""
         self.channel_emoji: str = ""
-        self.module_id: ModuleID = ""
+        self.module_id: ModuleID = ModuleID("")
         if isinstance(channel, EFBChannel):
             self.module_name = channel.channel_name
             self.channel_emoji = channel.channel_emoji
@@ -88,14 +91,14 @@ class EFBChat:
         self.chat_name: str = ""
         self.chat_type: ChatType = ChatType.Unknown
         self.chat_alias: Optional[str] = None
-        self.chat_uid: str = ""
+        self.chat_uid: ChatID = ChatID("")
         self.is_chat: bool = True
         self.notification: EFBChatNotificationState = EFBChatNotificationState.ALL
         self.members: List[EFBChat] = []
         self.group: Optional[EFBChat] = None
         self.vendor_specific: Dict[str, Any] = dict()
 
-    def self(self) -> 'EFBChat':
+    def self(self: EFBChatSelf) -> EFBChatSelf:
         """
         Set the chat as yourself.
         In this context, "yourself" means the user behind the master channel.
@@ -110,7 +113,7 @@ class EFBChat:
         self.chat_type = ChatType.User
         return self
 
-    def system(self) -> 'EFBChat':
+    def system(self: EFBChatSelf) -> EFBChatSelf:
         """
         Set the chat as a system chat.
         Only set for channel-level and group-level system chats.
@@ -151,7 +154,7 @@ class EFBChat:
         return self.chat_type == ChatType.System
 
     @property
-    def channel_id(self) -> str:
+    def channel_id(self) -> ModuleID:
         """Alias to module_id. (This property will be deprecated)"""
         warnings.warn("channel_id will be deprecated. Use module_id instead.", PendingDeprecationWarning)
         return self.module_id
@@ -197,5 +200,5 @@ class EFBChat:
         return self.module_id == other.module_id and self.chat_uid == other.chat_uid
 
     def __str__(self):
-        return "<EFBChat: {c.chat_name} ({alias}{c.chat_uid}) @ {c.module_name}>" \
-            .format(c=self, alias=self.chat_alias + ", " if self.chat_alias else "")
+        return "<EFBChat: {c.long_name} ({c.chat_uid}) @ {c.module_name}>" \
+            .format(c=self)

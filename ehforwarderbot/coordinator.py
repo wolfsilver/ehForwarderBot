@@ -115,7 +115,7 @@ def send_message(msg: 'EFBMsg') -> Optional['EFBMsg']:
     elif msg.deliver_to.channel_id in slaves:
         return slaves[msg.deliver_to.channel_id].send_message(msg)
     else:
-        raise EFBChannelNotFound(msg)
+        raise EFBChannelNotFound()
 
 
 def send_status(status: 'EFBStatus'):
@@ -147,6 +147,7 @@ def send_status(status: 'EFBStatus'):
 def get_module_by_id(module_id: ModuleID) -> Union[EFBChannel, EFBMiddleware]:
     """
     Return the module instance of a provided module ID
+
     Args:
         module_id: Module ID, with instance ID if available.
 

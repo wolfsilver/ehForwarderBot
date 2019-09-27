@@ -27,7 +27,7 @@ EH Forwarder Bot
    :target: https://crowdin.com/project/ehforwarderbot/
 
 
-.. image:: https://images.1a23.com/di/XOEE/EFB_v2.png
+.. image:: https://raw.githubusercontent.com/blueset/ehForwarderBot/master/banner.png
    :alt: Banner
 
 
@@ -87,7 +87,7 @@ or later versions.
 .. code-block:: text
 
     EH Forwarder Bot: An extensible chat tunneling bot framework.
-    Copyright (C) 2018 Eana Hufwe
+    Copyright (C) 2016 - 2019 Eana Hufwe, and the EH Forwarder Bot contributors
     All rights reserved.
 
     This program is free software: you can redistribute it and/or modify

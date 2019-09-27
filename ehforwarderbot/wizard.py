@@ -7,12 +7,14 @@ prior to installation, is already widespread, we are dropping
 Python version check in wizard script, and assuming user is
 running an appropriate Python version.
 """
+
 import argparse
 import gettext
 import os
 import platform
 import sys
 from collections import namedtuple
+from io import StringIO
 from typing import Dict, Callable
 from urllib.parse import quote
 
@@ -89,21 +91,16 @@ class DataModel:
             "# ID of each middleware to be enabled below.\n"
         )
         config += "middlewares: []\n"
-        return config
+
+        str_io = StringIO(config)
+        str_io.seek(0)
+        return str_io
 
     def load_config(self):
         coordinator.profile = self.profile
         conf_path = utils.get_config_path()
         if not os.path.exists(conf_path):
             self.config = self.yaml.load(self.default_config())
-
-            # Fill in required fields
-            if "master_channel" not in self.config:
-                self.config['master_channel'] = ""
-            if "slave_channels" not in self.config:
-                self.config["slave_channels"] = []
-            if "middlewares" not in self.config:
-                self.config["middlewares"] = []
         else:
             with open(conf_path) as f:
                 self.config = self.yaml.load(f)
@@ -263,7 +260,7 @@ class KeyValueBullet(Bullet):
                          background_on_switch, pad_right, indent, align, margin, shift)
 
         self.choices_id = choices_id
-        self._key_handler = self._key_handler.copy()
+        self._key_handler: Dict[int, Callable] = self._key_handler.copy()
         self._key_handler[NEWLINE_KEY] = self.__class__.accept
 
     # @keyhandler.register(NEWLINE_KEY)
@@ -274,7 +271,6 @@ class KeyValueBullet(Bullet):
         return self.choices[pos], self.choices_id[pos]
 
 
-# @keyhandler.init
 class ReorderBullet(Bullet):
 
     def __init__(self, prompt: str = "", choices: list = [], choices_id: list = [], bullet: str = "●",
@@ -296,7 +292,7 @@ class ReorderBullet(Bullet):
             "add",
             "submit"
         ))
-        self._key_handler = self._key_handler.copy()
+        self._key_handler: Dict[int, Callable] = self._key_handler.copy()
         self._key_handler[NEWLINE_KEY] = self.__class__.accept_fork
 
     @keyhandler.register(ord('-'))
@@ -354,7 +350,7 @@ class ReorderBullet(Bullet):
             pos = self.pos
             bullet.utils.moveCursorDown(len(self.choices) - pos)
             self.pos = 0
-            return self.choices, self.choices_id, self.choices_id[pos]
+            return self.choices[:-2], self.choices_id[:-2], self.choices_id[pos]
         return None
 
 
@@ -444,7 +440,7 @@ def choose_master_channel(data: DataModel):
 
     default_idx = None
     default_instance = ''
-    if "master_channel" in data.config:
+    if "master_channel" in data.config and data.config['master_channel']:
         default_config = data.config['master_channel'].split("#")
         default_id = default_config[0]
         if len(default_config) > 1:
@@ -541,7 +537,7 @@ def choose_middlewares(data: DataModel):
                     widget.choices_id.insert(-2, add_middleware_id)
         else:  # action == 'submit'
             break
-    data.config['slave_channels'] = chosen_middlewares_ids
+    data.config['middlewares'] = chosen_middlewares_ids
 
 
 def confirmation(data: DataModel):
@@ -588,7 +584,7 @@ def confirmation(data: DataModel):
 
     data.save_config()
     print()
-    print("Configuration is saved.")
+    print(_("Configuration is saved."))
 
 
 def main():
@@ -638,6 +634,7 @@ def main():
                     "are not included in this wizard.  For further details, you may want to "
                     "refer to the documentation.\n\n"
                     "https://ehforwarderbot.readthedocs.io/en/latest/config.html"))
+    print()
 
     modules_count = 1
     missing_wizards = []
@@ -691,7 +688,7 @@ def main():
         modules.extend(data.config['middlewares'])
     for i in modules:
         mid, iid = data.split_cid(i)
-        if callable(data.modules[mid].wizard):
+        if mid in data.modules and callable(data.modules[mid].wizard):
             print(_("Press ENTER/RETURN to start setting up {0}.").format(i))
             input()
             data.modules[mid].wizard(data.profile, iid)

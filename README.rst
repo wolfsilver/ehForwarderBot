@@ -27,7 +27,7 @@ EH Forwarder Bot
    :target: https://crowdin.com/project/ehforwarderbot/
 
 
-.. image:: https://images.1a23.com/di/XOEE/EFB_v2.png
+.. image:: https://github.com/blueset/ehForwarderBot/blob/master/banner.png
    :alt: Banner
 
 
@@ -85,7 +85,7 @@ EFB framework is licensed under `GNU Affero General Public License 3.0`_ or
 later versions::
 
     EH Forwarder Bot: An extensible chat tunneling bot framework.
-    Copyright (C) 2018 Eana Hufwe
+    Copyright (C) 2016 - 2019 Eana Hufwe, and the EH Forwarder Bot contributors
     All rights reserved.
 
     This program is free software: you can redistribute it and/or modify
@@ -101,10 +101,10 @@ later versions::
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-Localization support
---------------------
+Translation support
+-------------------
 
-EFB supports localized user interface prompts,
+EFB supports translated user interface prompts,
 by setting the locale environmental variable (``LANGUAGE``,
 ``LC_ALL``, ``LC_MESSAGES`` or ``LANG``) to one of our
 `supported languages`_. Our documentation is also available in different
