@@ -9,6 +9,10 @@ long_description = open('README.rst', encoding="utf-8").read()
 __version__ = ""
 exec(open('ehforwarderbot/__version__.py').read())
 
+
+tests_require = ["pytest", "mypy"]
+
+
 setup(
     name='ehforwarderbot',
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
@@ -17,7 +21,7 @@ setup(
     long_description=long_description,
     author='Eana Hufwe',
     author_email='ilove@1a23.com',
-    url='https://github.com/blueset/ehforwarderbot',
+    url='https://efb.1a23.studio',
     license='AGPLv3+',
     python_requires='>=3.6',
     include_package_data=True,
@@ -33,7 +37,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Topic :: Communications :: Chat",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
-        "Topic :: Utilities"
+        "Typing :: Typed"
     ],
     install_requires=[
         "ruamel.yaml",
@@ -41,8 +45,11 @@ setup(
         "cjkwrap",
         "typing_extensions"
     ],
+    tests_require=tests_require,
     extras_require={
-        'telemetry': ['1a23-telemetry']
+        'telemetry': ['1a23-telemetry'],
+        'trace': ['hanging-threads'],
+        'tests': tests_require
     },
     entry_points={
         "console_scripts": [

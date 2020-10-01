@@ -5,8 +5,8 @@ Logging
 -------
 
 In complex modules, you should have detailed logs in
-DEBUG level and maybe INFO level, and all your log
-handlers should follow that of the root logger, which
+DEBUG level and optionally INFO level. All your log
+handlers SHOULD follow that of the root logger, which
 is controlled by the framework. This could be helpful
 when for you to locate issues reported by users.
 
@@ -22,6 +22,21 @@ module.
 Threading
 ---------
 
-All channels are recommended a separate thread while
+All channels are RECOMMENDED a separate thread while
 processing a new message, so as to prevent unexpectedly
 long thread blocking.
+
+We are also considering to move completely to asynchronous
+programming when most channels are ready for the change.
+
+
+Static type checking
+--------------------
+
+EH Forwarder Bot is fully labeled in the Python 3 type
+hint notations. Since sometimes maintaining a module with
+high complexity could be difficult, we RECOMMEND you to
+type your module too and use tools like mypy_ to check your
+code statically.
+
+.. _mypy: https://github.com/python/mypy
