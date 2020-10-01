@@ -1,7 +1,7 @@
-EFBChannel
-==========
+Channel
+=======
 
-.. autoclass:: ehforwarderbot.EFBChannel
+.. automodule:: ehforwarderbot.channel
     :members:
 
 Common operations
@@ -11,26 +11,45 @@ Sending messages and statuses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sending messages and statuses to other channels is the most
-common operation of a channel. When the channel has gathered 
-enough information from external sources, it should be
-further processed and packed into the relative objects, 
-i.e. :obj:`.EFBMsg` and :obj:`.EFBStatus`.
+common operation of a channel. When enough information is gathered
+from external sources, the channel would then further process
+and pack them into the relevant objects,
+i.e. :py:class:`~.message.Message` and :py:class:`~.status.Status`.
 
-When the related information is packed into their relative 
-objects, it can be sent to the coordinator for the next
-step. 
+When the object is built, the channel should sent it to the coordinator for
+following steps.
 
-For now, both :obj:`.EFBMsg` and :obj:`.EFBStatus` has an
-attribute that indicates that where this object should be
-delivered to (:attr:`.EFBMsg.deliver_to` and 
-:attr:`.EFBStatus.destination_channel`). This is used by
+For now, both :obj:`~.message.Message` and :obj:`~.status.Status` has an
+attribute that indicates that where this object would be
+delivered to (:attr:`~.message.Message.deliver_to` and
+:attr:`~.status.Status.destination_channel`). This is used by
 the coordinator when delivering the message. 
 
-For messages, it can be delivered with :meth:`.coordinator.send_message`,
-and statuses can be delivered with :meth:`.coordinator.send_status`.
+Messages MUST be sent using :meth:`.coordinator.send_message`.
+Statuses MUST be sent using :meth:`.coordinator.send_status`.
 
 When the object is passed onto the coordinator, it will be
-further processed by the middleware.
+further processed by the middleware and then to its destination.
+
+For example, to send a message to the master channel
+
+.. code-block:: python
+
+    def on_message(self, data: Dict[str, Any]):
+        """Callback when a message is received by the slave channel from
+        the IM platform.
+        """
+        # Prepare message content ...
+        message = coordinator.send_message(Message(
+            chat=chat,
+            author=author,
+            type=message_type,
+            text=text,
+            # more details ...
+            uid=data['uid'],
+            deliver_to=coordinator.master
+        ))
+        # Post-processing ...
 
 About Channel ID
 ----------------

@@ -1,6 +1,5 @@
 EH Forwarder Bot
 ================
-
 .. image:: https://img.shields.io/badge/Python->%3D%203.6-blue.svg
    :alt: Python >= 3.6
    :target: https://www.python.org/
@@ -13,12 +12,15 @@ EH Forwarder Bot
 .. image:: https://readthedocs.org/projects/ehforwarderbot/badge/?version=latest
    :alt: Documentation
    :target: https://ehforwarderbot.readthedocs.io/en/latest/
+.. image:: https://github.com/blueset/ehforwarderbot/workflows/Tests/badge.svg
+   :alt: Tests status
+   :target: https://github.com/blueset/ehforwarderbot/actions
 .. image:: https://img.shields.io/pypi/v/ehforwarderbot.svg
    :alt: PyPI release
    :target: https://pypi.org/project/ehforwarderbot/
-.. image:: https://img.shields.io/pypi/dm/ehforwarderbot.svg
+.. image:: https://pepy.tech/badge/ehforwarderbot/month
    :alt: Downloads per month
-   :target: https://pypi.org/project/ehforwarderbot/
+   :target: https://pepy.tech/project/ehforwarderbot
 .. image:: https://img.shields.io/codacy/grade/3b2555f9134844e3b01b00700bc43eeb.svg
    :alt: Codacy grade
    :target: https://www.codacy.com/app/blueset/ehForwarderBot
@@ -27,26 +29,32 @@ EH Forwarder Bot
    :target: https://crowdin.com/project/ehforwarderbot/
 
 
-.. image:: https://github.com/blueset/ehForwarderBot/blob/master/banner.png
+.. image:: https://github.com/blueset/ehforwarderbot/raw/master/banner.png
    :alt: Banner
 
 
-*Codename* **EH Forwarder Bot** (EFB) is an extensible
-chat tunneling framework allowing users to contact
-people from multiple chat platforms and remotely
-control their accounts in one stop.
+*Codename* **EH Forwarder Bot** (EFB) is an extensible message tunneling chat
+bot framework which delivers messages to and from multiple platforms and
+remotely control your accounts.
 
-For tips, tricks and community contributed articles, see
-`project wiki`_.
+Read the `Documentation`_. For tips, tricks and community contributed 
+articles, see `project wiki`_.
 
-.. _project wiki: https://github.com/blueset/ehForwarderBot/wiki
+.. _project wiki: https://efb.1a23.studio/wiki
 
-v2.0 beta release
-------------------
-This is a beta release of EFB version 2 for test only.
-Framework API may subject to change.
 
-`Documentation`_.
+.. a raw:: html
+   <div style="text-align: center" align="center">
+      <img src="https://github.com/blueset/ehforwarderbot/raw/master/assets/EFB.svg?sanitize=true" style="height: 64px;" height="64" alt="EH Forwarder Bot"/>
+      <img src="https://github.com/blueset/ehforwarderbot/raw/master/assets/supports.svg?sanitize=true" style="height: 64px;" height="64" alt="supports" />
+      <a href="https://etm.1a23.studio"><img src="https://github.com/blueset/ehforwarderbot/raw/master/assets/telegram.svg?sanitize=true" style="height: 64px;" height="64" alt="Telegram" /></a>
+      <img src="https://github.com/blueset/ehforwarderbot/raw/master/assets/plus.svg?sanitize=true" style="height: 64px;" height="64" alt="and"/>
+      <a href="https://ews.1a23.studio"><img src="https://github.com/blueset/ehforwarderbot/raw/master/assets/wechat.svg?sanitize=true" style="height: 64px;" height="64" alt="Wechat"/></a>
+      <a href="https://efms.1a23.studio"><img src="https://github.com/blueset/ehforwarderbot/raw/master/assets/fb-messenger.svg?sanitize=true" style="height: 64px;" height="64" alt="Facebook Messenger"/></a>
+      <a href="https://github.com/milkice233/efb-qq-slave/"><img src="https://github.com/blueset/ehforwarderbot/raw/master/assets/qq.svg?sanitize=true" style="height: 64px;" height="64" alt="QQ"/></a>
+      <img src="https://github.com/blueset/ehforwarderbot/raw/master/assets/and-more.svg?sanitize=true" style="height: 64px;" height="64" alt="and more..."/>
+   </div>
+
 
 Getting Started
 ---------------
@@ -55,9 +63,13 @@ Getting Started
 
     pip3 install ehforwarderbot
 
-2. `Install and enable channels`_ from the `channels repository`_.
+2. `Install modules`_ from the `module repository`_.
 
-3. Launch EFB::
+3. Enable and set up modules::
+
+    efb-wizard
+
+4. Launch EFB::
 
     ehforwarderbot
 
@@ -84,8 +96,8 @@ License
 EFB framework is licensed under `GNU Affero General Public License 3.0`_ or
 later versions::
 
-    EH Forwarder Bot: An extensible chat tunneling bot framework.
-    Copyright (C) 2016 - 2019 Eana Hufwe, and the EH Forwarder Bot contributors
+    EH Forwarder Bot: An extensible message tunneling chat bot framework.
+    Copyright (C) 2016 - 2020 Eana Hufwe, and the EH Forwarder Bot contributors
     All rights reserved.
 
     This program is free software: you can redistribute it and/or modify
@@ -114,7 +126,7 @@ this project into your languages on `our Crowdin page`_.
 .. _supported languages: https://crowdin.com/project/ehforwarderbot/
 .. _our Crowdin page: https://crowdin.com/project/ehforwarderbot/
 
-.. _Install and enable channels: https://ehforwarderbot.readthedocs.io/en/latest/getting-started.html
-.. _channels repository: https://github.com/blueset/ehForwarderBot/wiki/Channels-Repository
+.. _Install modules: https://ehforwarderbot.readthedocs.io/en/latest/getting-started.html
+.. _module repository: https://efb-modules.1a23.studio
 .. _Documentation: https://ehforwarderbot.readthedocs.io/
 .. _GNU Affero General Public License 3.0: https://www.gnu.org/licenses/agpl-3.0.txt

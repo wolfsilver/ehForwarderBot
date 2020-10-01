@@ -16,8 +16,8 @@ using Python's ``atexit`` or otherwise.
 Message and Status Processing
 -----------------------------
 
-Each middleware by default has 2 methods, :meth:`~.ehforwarderbot.EFBMiddleware.process_message`
-which processes message objects, and :meth:`~.ehforwarderbot.EFBMiddleware.process_status`
+Each middleware by default has 2 methods, :meth:`~.ehforwarderbot.Middleware.process_message`
+which processes message objects, and :meth:`~.ehforwarderbot.Middleware.process_status`
 which processes status objects. If they are not overridden,
 they will not touch on the object and pass it on as is.
 
@@ -25,7 +25,7 @@ To modify an object, just override the relative method and
 make changes to it. To discard an object, simply return ``None``.
 When an object is discarded, it will not be passed further
 to other middlewares or channels, which means a middleware
-or a channel should never receive a ``None`` message or
+or a channel will never receive a ``None`` message or
 status.
 
 Other Usages
@@ -44,3 +44,7 @@ Some ideas:
 - Share user session from slave channel with other
   programs
 - etc...
+
+Implementation details
+----------------------
+See :class:`.Middleware`.

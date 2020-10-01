@@ -1,0 +1,82 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ehforwarderbot\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-31 16:51+0800\n"
+"PO-Revision-Date: 2020-01-31 08:55\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: ehforwarderbot\n"
+"X-Crowdin-Language: ja\n"
+"X-Crowdin-File: /ehForwarderBot/docs/_build/locale/sphinx.pot\n"
+"Language: ja_JP\n"
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/donate.html:2
+#: 32f226ab3aff42ae80bb4194b199faa1
+msgid "Donate/support"
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/layout.html:19
+#: 85ea168d45b44d758e7e4062e32c80e8
+msgid "Build"
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/layout.html:24
+#: 9693096c9cd541c8bc0dfcf4a1e540f9
+msgid "Revision"
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/layout.html:28
+#: 427d913687cf43e18488831559b0d38f
+msgid "Last updated on %(last_updated)s."
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/layout.html:37
+#: e59ba370050743cd9721e7e5f0fb6894
+msgid "Page source"
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/relations.html:1
+#: ed7fb20c35f14bd28c475822dff0f39d
+msgid "previous chapter"
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/relations.html:1
+#: 2e39e11b0f5e414aa864ed0cc77cb451
+msgid "next chapter"
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/relations.html:3
+#: c0b5ac8d4dab499d8d8c2c77036807a8
+msgid "Related Topics"
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/relations.html:5
+#: 695924a8a7194ed28f1f96cc60972aa1
+msgid "Documentation overview"
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/relations.html:10
+#: 99b4d97efb2149acab6e0f0d85a7cc50
+msgid "Previous: "
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/relations.html:13
+#: 67e5e2814af543ddad16b3dc7d77643e
+msgid "Next: "
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/translate.html:2
+#: 94f56388dfe14dc2980f0edfb2213179
+msgid "Contribute translations"
+msgstr ""
+
+#: /Users/blueset/Codebase/ehForwarderBot/docs/_templates/translate.html:3
+#: 727bb1b5b5b6442c9ab36bcffd42125e
+msgid "Help translate this docs on Crowdin"
+msgstr ""
+

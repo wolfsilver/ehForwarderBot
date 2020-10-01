@@ -1,6 +1,6 @@
 """A list of type aliases when no separate class is defined for some types of
-values. User-facing types (display names, descriptions, message text, etc.)
-shall not be included here.
+values. Types for user-facing values (display names, descriptions, message text,
+etc.) are not otherwise defined.
 
 Most of types listed here are defined under the "NewType" syntax in order to
 clarify some ambiguous values not covered by simple type checking. This is only
@@ -12,13 +12,13 @@ from typing import Collection, TYPE_CHECKING, Mapping
 from typing_extensions import NewType
 
 if TYPE_CHECKING:
-    from .chat import EFBChat
+    from .chat import ChatMember
 
 
 ReactionName = NewType('ReactionName', str)
 """Canonical representation of a reaction, usually an emoji."""
 
-Reactions = Mapping[ReactionName, Collection['EFBChat']]
+Reactions = Mapping[ReactionName, Collection['ChatMember']]
 """Reactions to a message."""
 
 ModuleID = NewType('ModuleID', str)
@@ -28,7 +28,7 @@ InstanceID = NewType('InstanceID', str)
 "Instance ID of a module."
 
 ChatID = NewType('ChatID', str)
-"Chat ID from slave channel or middleware."
+"Chat ID from slave channel or middleware, applicable to both chat and chat members."
 
 MessageID = NewType('MessageID', str)
 "Message ID from slave channel or middleware."

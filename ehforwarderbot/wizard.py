@@ -14,8 +14,9 @@ import os
 import platform
 import sys
 from collections import namedtuple
+from contextlib import suppress
 from io import StringIO
-from typing import Dict, Callable
+from typing import Dict, Callable, Optional
 from urllib.parse import quote
 
 import bullet.utils
@@ -55,7 +56,7 @@ class DataModel:
 
     @staticmethod
     def default_config():
-        # TRANSLATORS: This part of text must be formatted in a monospaced font, and no line shall exceed the width of a 70-cell-wide terminal.
+        # TRANSLATORS: This part of text must be formatted in a monospaced font, and all lines must not exceed the width of a 70-cell-wide terminal.
         config = _(
             "# ===================================\n"
             "# EH Forwarder Bot Configuration File\n"
@@ -71,7 +72,7 @@ class DataModel:
             "# Fill in the module ID and instance ID (if needed) below.\n"
         )
         config += "\nmaster_channel:\n\n"
-        # TRANSLATORS: This part of text must be formatted in a monospaced font, and no line shall exceed the width of a 70-cell-wide terminal.
+        # TRANSLATORS: This part of text must be formatted in a monospaced font, and all lines must not exceed the width of a 70-cell-wide terminal.
         config += _(
             "# Slave Channels\n"
             "# --------------\n"
@@ -81,7 +82,7 @@ class DataModel:
             "# to be enabled below.\n"
         )
         config += "\nslave_channels: []\n\n"
-        # TRANSLATORS: This part of text must be formatted in a monospaced font, and no line shall exceed the width of a 70-cell-wide terminal.
+        # TRANSLATORS: This part of text must be formatted in a monospaced font, and all lines must not exceed the width of a 70-cell-wide terminal.
         config += _(
             "# Middlewares\n"
             "# -----------\n"
@@ -109,8 +110,8 @@ class DataModel:
     def save_config(self):
         coordinator.profile = self.profile
         conf_path = utils.get_config_path()
-        if not os.path.exists(conf_path):
-            os.makedirs(os.path.dirname(conf_path))
+        if not conf_path.exists():
+            conf_path.parent.mkdir(parents=True, exist_ok=True)
         with open(conf_path, 'w') as f:
             self.yaml.dump(self.config, f)
 
@@ -273,20 +274,24 @@ class KeyValueBullet(Bullet):
 
 class ReorderBullet(Bullet):
 
-    def __init__(self, prompt: str = "", choices: list = [], choices_id: list = [], bullet: str = "●",
+    def __init__(self, prompt: str = "", choices: list = None, choices_id: list = None, bullet: str = "●",
                  bullet_color: str = colors.foreground["default"], word_color: str = colors.foreground["default"],
                  word_on_switch: str = colors.REVERSE, background_color: str = colors.background["default"],
                  background_on_switch: str = colors.REVERSE, pad_right=0, indent: int = 0, align=0, margin: int = 0,
-                 shift: int = 0):
-        super().__init__(prompt, choices, bullet, bullet_color, word_color, word_on_switch, background_color,
-                         background_on_switch, pad_right, indent, align, margin, shift)
-        self.prompt += "\n" + _(
+                 shift: int = 0, required: bool = False):
+        if choices is None:
+            choices = []
+        if choices_id is None:
+            choices_id = []
+        prompt += "\n" + _(
             "[ =: Shift up; -: Shift down; Backspace: Remove ]"
         )
-        self.choices.extend((
+        choices.extend((
             _("+ Add"),
             _("✓ Submit")
         ))
+        super().__init__(prompt, choices, bullet, bullet_color, word_color, word_on_switch, background_color,
+                         background_on_switch, pad_right, indent, align, margin, shift)
         self.choices_id = choices_id
         self.choices_id.extend((
             "add",
@@ -294,6 +299,7 @@ class ReorderBullet(Bullet):
         ))
         self._key_handler: Dict[int, Callable] = self._key_handler.copy()
         self._key_handler[NEWLINE_KEY] = self.__class__.accept_fork
+        self.required = required
 
     @keyhandler.register(ord('-'))
     def shift_up(self):
@@ -343,7 +349,7 @@ class ReorderBullet(Bullet):
     # @keyhandler.register(NEWLINE_KEY)
     def accept_fork(self):
         choices = len(self.choices)
-        if self.pos == choices - 1 and choices <= 2:
+        if self.required and self.pos == choices - 1 and choices <= 2:
             # Reject empty list
             return None
         if self.pos >= choices - 2:  # Add / Submit
@@ -361,7 +367,7 @@ def get_platform_name():
         try:
             # noinspection PyDeprecation
             return ' '.join(platform.linux_distribution()[:2])
-        except:
+        except:  # lgtm [py/catch-base-exception]
             # noinspection PyDeprecation
             return ' '.join(platform.dist()[:2])
     elif p == "Darwin":
@@ -406,7 +412,7 @@ def prerequisite_check():
     # Check installations of modules
     modules_err = _("You may want to visit the modules repository to find a list of "
                     "available modules to install.\n"
-                    "https://github.com/blueset/ehForwarderBot/wiki/Channels-Repository")
+                    "https://efb-modules.1a23.studio")
     # 1. At least 1 master channel must be installed
     print(_("Checking master channels... "), end="")
     try:
@@ -445,10 +451,8 @@ def choose_master_channel(data: DataModel):
         default_id = default_config[0]
         if len(default_config) > 1:
             default_instance = default_config[1]
-        try:
+        with suppress(ValueError):
             default_idx = channel_ids.index(default_id)
-        except ValueError:
-            pass
 
     chosen_channel_name, chosen_channel_id = list_widget.launch(default=default_idx)
 
@@ -457,7 +461,7 @@ def choose_master_channel(data: DataModel):
                                     default_instance=default_instance or _("default instance"))
                             + " ").strip()
     if chosen_instance:
-        chosen_channel_id += "#" + chosen_instance  # type: ignore
+        chosen_channel_id += "#" + chosen_instance
     data.config['master_channel'] = chosen_channel_id
 
 
@@ -465,7 +469,8 @@ def choose_slave_channels(data: DataModel):
     chosen_slave_names, chosen_slave_ids = data.get_selected_slave_lists()
     widget = ReorderBullet(_("2. Choose slave channels (at least one is required)."),
                            choices=chosen_slave_names,
-                           choices_id=chosen_slave_ids)
+                           choices_id=chosen_slave_ids,
+                           required=True)
 
     channel_names, channel_ids = data.get_slave_lists()
     list_widget = KeyValueBullet(prompt=_("Choose a slave channel to add."),
@@ -483,7 +488,7 @@ def choose_slave_channels(data: DataModel):
                                                  default_instance=_("default instance"))
                                          + " ").strip()
             if add_channel_instance:
-                add_channel_id += "#" + add_channel_instance  # type: ignore
+                add_channel_id += "#" + add_channel_instance
 
             display_name = data.get_instance_display_name(add_channel_id)
             if add_channel_id in widget.choices_id:
@@ -505,17 +510,20 @@ def choose_middlewares(data: DataModel):
                            choices_id=chosen_middlewares_ids)
 
     middlewares_names, middlewares_ids = data.get_middleware_lists()
-    list_widget = KeyValueBullet(prompt=_("Choose a middleware to add."),
-                                 choices=middlewares_names,
-                                 choices_id=middlewares_ids)
+    list_widget: Optional[KeyValueBullet]
+    if middlewares_ids:
+        list_widget = KeyValueBullet(prompt=_("Choose a middleware to add."),
+                                     choices=middlewares_names,
+                                     choices_id=middlewares_ids)
+    else:
+        list_widget = None
 
     while True:
         print()
         chosen_middlewares_names, chosen_middlewares_ids, action = widget.launch()
         if action == 'add':
-
             print()
-            if not middlewares_ids:
+            if not list_widget:
                 print_wrapped(_("No installed middleware is detected, press ENTER to go back."))
                 input()
             else:
@@ -525,7 +533,7 @@ def choose_middlewares(data: DataModel):
                                                         default_instance=_("default instance"))
                                                 + " ").strip()
                 if add_middleware_instance:
-                    add_middleware_id += "#" + add_middleware_instance  # type: ignore
+                    add_middleware_id += "#" + add_middleware_instance
 
                 display_name = data.get_instance_display_name(add_middleware_id)
                 if add_middleware_id in widget.choices_id:

@@ -13,17 +13,25 @@ from .types import ModuleID
 
 
 def extra(name: str, desc: str) -> Callable[..., Optional[str]]:
-    """
-    Decorator for slave channel's "additional features" interface.
+    """Decorator for slave channel's "additional features" interface.
 
     Args:
-        name (str): A human readable name for the function.
-        desc (str): A short description and usage of it. Use
+        name: A human readable name for the function.
+        desc: A short description and usage of it. Use
             ``{function_name}`` in place of the function name
             in the description.
 
     Returns:
         The decorated method.
+
+
+    Example:
+
+        .. code-block:: python
+
+            @extra(name="Echo", desc="Return the text entered.\\n\\nUsage:\\n    {function_name} text")
+            def echo(self, text: str) -> Optional[str]:
+                return text
     """
 
     def attr_dec(f):
@@ -65,7 +73,7 @@ def get_data_path(module_id: ModuleID) -> Path:
     This method creates the queried path if not existing.
 
     Args:
-        module_id (str): Module ID
+        module_id: Module ID
 
     Returns:
         The data path of indicated module.
@@ -80,15 +88,14 @@ def get_data_path(module_id: ModuleID) -> Path:
 def get_config_path(module_id: ModuleID = None, ext: str = 'yaml') -> Path:
     """
     Get path for configuration file. Defaulted to
-    ``~/.ehforwarderbot/profiles/profile_name/channel_id/config.yaml``.
+    :file:`~/.ehforwarderbot/profiles/{profile_name}/{module_id}/config.yaml`.
 
     This method creates the queried path if not existing. The config file will
     not be created, however.
 
     Args:
-        module_id (str): Module ID.
-        ext (Optional[Str]): Extension name of the config file.
-            Defaulted to ``"yaml"``.
+        module_id: Module ID.
+        ext: Extension name of the config file. Defaulted to ``"yaml"``.
 
     Returns:
         The path to the configuration file.
